@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Civilization game</title>
+        <link rel="stylesheet" href="teststyle.css">
+        </head>
+        
+<body>
+<!--Game title-->
+<h1 id="gameTitle">History of Physics: The Game</h1>
+
+<div id="menuContainer">
+    <button id="startButton">Start Game</button>
+</div>
+
+<!--Game UI-->
+<div id="gameContainer" style="display: none;">
+    <!--Add Background image
+    <img id="backGround" src="library/backgrounds/brownBack.png" alt="backgroundImage">
+    -->
+
+    <div class="topArea">
+
+        <!--Division for story bar-->
+        <div id="eventArea">Welcome</div>
+
+        <!--Division for resources-->
+        <div id="resourceArea">
+            <div id="happinessBar" class="resource">Happiness: 100</div>
+            <div id="wealthBar" class="resource">Wealth: 100</div>
+            <div id="supportBar" class="resource">Support: 100</div>
+        </div>
+
+    </div>
+
+    <!--Division for description-->
+    <div id="infoArea">Nothing yet.</div>
+
+    <!--Division for card container-->
+    <div id="cardContainer">
+        <div class="card" onmouseover="showDescription('card1')" onmouseout="hideDescription('card1')">
+            <h2>Card 1</h2>
+            <p id="card1-description">This is the description for card 1.</p>
+        </div>
+
+        <div class="card" onmouseover="showDescription('card2')" onmouseout="hideDescription('card2')">
+            <h2>Card 2</h2>
+            <p id="card2-description">This is the description for card 2.</p>
+        </div>
+
+        <div class="card" onmouseover="showDescription('card3')" onmouseout="hideDescription('card3')">
+            <h2>Card 3</h2>
+            <p id="card3-description">This is the description for card 3.</p>
+        </div>
+    
+        <!--Action button-->
+        <button id="endTurnButton">End Turn</button>
+    </div>
+
+    <!--Event modal window-->
+    <div id="event-modal" class="modal">
+        <div class="modal-content">
+          <span class="close-button">&times;</span>
+          <h2 id="event-title">Event Title</h2>
+          <p id="event-description">This is an event description.</p>
+          <button id="close-event">Close Event</button>
+        </div>
+    </div>
+
+</div>
+
+    <script src="testscript.js"></script>
+</body>
+</html>
