@@ -76,9 +76,56 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-
-
 // (Test) function for showing card decription
+const cards = [
+  { id: 1, title: "Card 1", available: true, unlock: [2,3], cost: 5, increase: 3, description: "Description for Card 1...", imageUrl: "library/backgrounds/stone_age.png" },
+  { id: 2, title: "Card 2", available: false, unlock: [], cost: 4, increase: 2, description: "Description for Card 2..." },
+  { id: 3, title: "Card 3", available: false, unlock: [4], cost: 6, increase: 5, description: "This again is another very long description that probably will take up the whole info area, at least I hope it will. But hey you know what, Welcome to the cyber age! Hackers have infiltrated your computer systems and compromised some of your most valuable secrets. This is annoying but manageable, as long as they did not encrypt the files describing your latest and greatest invention. So what do you think about this? You probably will lose some money and stuff, also a lot of sanity too, as if this description itself is not bad enough. But everything to the side, hope you have a great day and see ya.", imageUrl: "library/backgrounds/future.png"},
+  {id: 4, title: "Card 4", available: false, unlock: [], cost: 7, increase: 10, description: "Why are you stil here."}
+  // Add more card objects here
+];
+
+function populateCards() {
+  const cardArea = document.getElementById('cardContainer');
+
+  cards.forEach(card => {
+    const cardElement = document.createElement('div');
+    cardElement.className = 'card';
+    cardElement.innerHTML = `
+      <div class="card-title">${card.title}</div>
+      <div class="card-cost">Cost: ${card.cost}</div>
+      <div class="card-increase">Increase: ${card.increase}</div>
+    `;
+
+    cardElement.addEventListener('mouseenter', () => {
+      const descriptionArea = document.getElementById('infoArea');
+      descriptionArea.innerHTML = `
+        <div class="description-content">
+          <img src="${card.imageUrl}" alt="${card.title}" class="card-image">
+          <div class="card-info">
+            <h3 class="card-title">${card.title}</h3>
+            <p>${card.description}</p>
+          </div>
+        </div>
+      `;
+    });
+
+    /*
+    cardElement.addEventListener('mouseleave', () => {
+      document.getElementById('infoArea').textContent = '';
+    });*/
+    cardArea.appendChild(cardElement);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  populateCards();
+  // other initialization code
+});
+
+
+
+/*
 function showDescription(cardId) {
   var description = document.getElementById("infoArea");
   const message = document.getElementById(cardId + "-description").innerHTML
@@ -89,5 +136,5 @@ function hideDescription(cardId) {
   var description = document.getElementById("infoArea");
   description.textContent = "Nothing yet";
 }
-
+*/
 // Add more game logic if needed
