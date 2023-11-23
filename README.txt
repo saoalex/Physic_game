@@ -1,3 +1,3 @@
 Have fun!
 
-It is far from being completed.
+It is far from being completed though.
