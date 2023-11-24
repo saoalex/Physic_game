@@ -117,6 +117,21 @@
     margin-right: -150px;
 }
 
+.highlighted {
+    background-color: burlywood;
+}
+
+.card-title {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.card-value {
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+
 
 .card-image {
     width: 300px; /* Set the desired width */
