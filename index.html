@@ -28,9 +28,9 @@
 
         <!--Division for resources-->
         <div id="resourceArea">
-            <div id="happinessBar" class="resource">Happiness: 100</div>
-            <div id="wealthBar" class="resource">Wealth: 100</div>
-            <div id="supportBar" class="resource">Support: 100</div>
+            <div class="resource">Gold: <span id="wealthBar">100</span></div>
+            <div class="resource">Happiness: <span id="happinessBar">100</span></div>
+            <div class="resource">Science: <span id="scienceBar">100</span></div>
         </div>
 
     </div>
@@ -43,6 +43,7 @@
         
         <!--Action button-->
         <button id="endTurnButton">End Turn</button>
+        <button id="restartButton">Restart</button>
     </div>
 
     <!--Event modal window-->
@@ -57,6 +58,6 @@
 
 </div>
 
-    <script type="module" src="testscript.mjs"></script>
+    <script src="testscript.js"></script>
 </body>
 </html>
