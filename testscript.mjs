@@ -1,3 +1,5 @@
+import {updateCards, startCards, techCard} from './card.mjs';
+
 // Universal constants
 let resources = {
   wealth: 100,
@@ -156,6 +158,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Show the modal
     eventModal.style.display = 'block';
+
+    // card populate
+    cardList.forEach(card => {
+      if (card._card.classList.contains('highlighted')) {
+        populateCards(card.hardChildren);
+        cardList.concat(card.hardChildren);
+        card._card.classList.remove('highlighted');
+        card.hide()
+      }
+    })
   });
 
   const closeModal = () => {
@@ -224,6 +236,9 @@ function populateCards() {
   });
 }
 */
+
+
+
 
 
 var cardList = startCards();
