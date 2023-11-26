@@ -163,7 +163,9 @@ document.addEventListener('DOMContentLoaded', () => {
     cardList.forEach(card => {
       if (card._card.classList.contains('highlighted')) {
         populateCards(card.hardChildren);
-        cardList.concat(card.hardChildren);
+        card.hardChildren.forEach(hardChild => {
+          cardList.push(hardChild);
+        })
         card._card.classList.remove('highlighted');
         card.hide()
       }
