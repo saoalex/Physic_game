@@ -1,7 +1,7 @@
 class techCard {
     /* 
     This class requires there to be a css section for:
-    .researchCard
+    .card
     .card-title
     .card-value
     .highlighted
@@ -77,16 +77,7 @@ class techCard {
 
         The html card includes the title, the gold per turn as gpt, the science, and happiness given by the card.
         */
-        /*
-        const new_card = document.createElement('div');
-        new_card.classList.add('researchCard')
-        new_card.innerHTML = `<div class="card-title">${this._name}</div>
-                        <div class="card-value">Cost: ${this._cost} </div>
-                        <div class="card-value">+${this._gpt} GPT</div>
-                        <div class="card-value">+${this._happiness} Happiness</div>
-                        <div class="card-value">+${this._science} Support</div>`;
-        */
-
+        
         const new_card = document.createElement('div');
         new_card.className = 'card';
         new_card.innerHTML = `<div class="card-title">${this._name}</div>
@@ -179,6 +170,9 @@ function startCards() {
 
 function updateCards(cardList) {
     /*
+
+    THIS FUNCTION CURRENTLY DOES NOT SEEM TO WORK AS INTENDED.
+
     This function should be called every time a turn is ended.
 
     It checks to see if any cards are highlighted.
@@ -212,7 +206,9 @@ function updateCards(cardList) {
             
             newDescription.push(card.description);
             
-            newCards = newCards.concat(card.hardChildren);
+            card.hardChildren.forEach(hardChild => {
+                newCards.push(hardChild);
+            })
             
             card._card.classList.remove('highlighted');
             card.hide();
@@ -226,7 +222,9 @@ function updateCards(cardList) {
         }
     })
 
-    return newCards, changeGold, changeGPT, changeHappiness, changeScience, newDescription;
+    const statChanges = [changeGold, changeGPT, changeHappiness, changeScience];
+
+    return newCards, statChanges, newDescription;
 }
 
 function initializeTechTree() {
