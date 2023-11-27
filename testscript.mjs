@@ -128,7 +128,7 @@ function triggerEvent(event) {
   }*/
 
   // Update UI or other game elements based on new resource values
-  updateResourceDisplay();
+  //updateResourceDisplay(); This function is now called in the main button function.
 }
 
 
@@ -136,6 +136,9 @@ function updateResourceDisplay() {
   /**
    * This function updates the resources display on the website.
    */
+
+  resources.science -= 5;
+
   document.getElementById('wealthBar').textContent = Math.round(resources.wealth);
   document.getElementById('happinessBar').textContent = Math.round(resources.happiness);
   document.getElementById('scienceBar').textContent = Math.round(resources.science);
