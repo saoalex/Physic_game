@@ -127,7 +127,7 @@ function triggerEvent(event) {
 
 
 function tryTriggerEvent() {
-  const triggerChance = 0.6; // 60% chance to trigger an event
+  const triggerChance = 0.66; // 66% chance to trigger an event
 
   if (Math.random() < triggerChance) {
     // Trigger a random event
