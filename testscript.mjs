@@ -1,10 +1,11 @@
-import {updateCards, startCards, techCard} from './card.mjs';
+import {startCards, techCard} from './card.mjs';
 
 // Universal constants
 let resources = {
   wealth: 100,
   happiness: 100,
-  science: 100
+  science: 100,
+  gpt: 0
 }
 
 const events = [
@@ -130,12 +131,15 @@ function triggerEvent(event) {
   updateResourceDisplay();
 }
 
-//function to update the resources
+
 function updateResourceDisplay() {
-  // Example:
+  /**
+   * This function updates the resources display on the website.
+   */
   document.getElementById('wealthBar').textContent = Math.round(resources.wealth);
   document.getElementById('happinessBar').textContent = Math.round(resources.happiness);
-  document.getElementById('scienceBar').textContent = Math.round(resources.science)
+  document.getElementById('scienceBar').textContent = Math.round(resources.science);
+  document.getElementById('gptBar').textContent = resources.gpt;
 }
 
 // Function to show the event when end turn button is clicked on.
@@ -146,8 +150,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeEventButton = document.getElementById('close-event');
   const gameContainer = document.getElementById('gameContainer');
   const storyArea = document.getElementById('eventArea');
+  
 
   endTurnButton.addEventListener('click', () => {
+    // Update wealth based on gold per turn from the previous turn.
+    resources.wealth += resources.gpt;
+
     // Select a random event and trigger its effects
     const randomEvent = events[Math.floor(Math.random() * events.length)];
     triggerEvent(randomEvent)
@@ -159,15 +167,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Show the modal
     eventModal.style.display = 'block';
 
-    // card populate
-    cardList.forEach(card => {
-      if (card._card.classList.contains('highlighted')) {
-        populateCards(card.hardChildren);
-        cardList.concat(card.hardChildren);
-        card._card.classList.remove('highlighted');
-        card.hide()
-      }
-    })
+    // card populate and get card descriptions.
+    const newDescriptions = updateCards(cardList);
+
+    // Display the descriptions on the website infoArea.
+    updateDescriptions(newDescriptions);
+
+    // Update the resources after everything has been factored into the new resources.
+    updateResourceDisplay();
   });
 
   const closeModal = () => {
@@ -194,56 +201,15 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-
-
-// (Test) function for showing card decription
-/*
-const cards = [
-  { id: 1, title: "Card 1", available: true, unlock: [2,3], cost: 5, increase: 3, description: "Description for Card 1...", imageUrl: "library/backgrounds/stone_age.png" },
-  { id: 2, title: "Card 2", available: false, unlock: [], cost: 4, increase: 2, description: "Description for Card 2..." },
-  { id: 3, title: "Card 3", available: false, unlock: [4], cost: 6, increase: 5, description: "This again is another very long description that probably will take up the whole info area, at least I hope it will. But hey you know what, Welcome to the cyber age! Hackers have infiltrated your computer systems and compromised some of your most valuable secrets. This is annoying but manageable, as long as they did not encrypt the files describing your latest and greatest invention. So what do you think about this? You probably will lose some money and stuff, also a lot of sanity too, as if this description itself is not bad enough. But everything to the side, hope you have a great day and see ya.", imageUrl: "library/backgrounds/future.png"},
-  {id: 4, title: "Card 4", available: false, unlock: [], cost: 7, increase: 10, description: "Why are you stil here."}
-  // Add more card objects here
-];
-
-function populateCards() {
-  const cardArea = document.getElementById('cardContainer');
-
-  cards.forEach(card => {
-    const cardElement = document.createElement('div');
-    cardElement.className = 'card';
-    cardElement.innerHTML = `
-      <div class="card-title">${card.title}</div>
-      <div class="card-cost">Cost: ${card.cost}</div>
-      <div class="card-increase">Increase: ${card.increase}</div>
-    `;
-
-    cardElement.addEventListener('mouseenter', () => {
-      const descriptionArea = document.getElementById('infoArea');
-      descriptionArea.innerHTML = `
-        <div class="description-content">
-          <img src="${card.imageUrl}" alt="${card.title}" class="card-image">
-          <div class="card-info">
-            <h3 class="card-title">${card.title}</h3>
-            <p>${card.description}</p>
-          </div>
-        </div>
-      `;
-    });
-
-    });
-    cardArea.appendChild(cardElement);
-  });
-}
-*/
-
-
-
-
-
+// This will initialize the cards at the beginning of the game, as well as keep a running list of all cards in the game at the moment.
 var cardList = startCards();
 
+
 function populateCards(cardList) {
+  /**
+  * This function takes the card html from the techCards in cardList, and applies them to
+  * the document element with class 'cardContainer'.
+  */
   const cardArea = document.getElementById('cardContainer');
   cardList.forEach(card => {
     card.appendTo(cardArea);
@@ -251,34 +217,69 @@ function populateCards(cardList) {
   
 }
 
-/*
-function populateCards() {
-  const cardArea = document.getElementById('cardContainer');
-
-  var cards = startCards();
-
-  cards.forEach(card => {
-    cardArea.appendChild(card._card)
-  });
-}
-*/
-
 document.addEventListener('DOMContentLoaded', () => {
   populateCards(cardList);
 });
 
+function updateCards(cardList) {
+  /**
+   * This function will update everything to do with the cards inbetween turns.
+   * This includes displaying child cards, removing chosen cards, updating resources, and gathering the descriptions from all chosen cards.
+   * 
+   * INPUTS:
+   * cardList: A list of the current cards in the game.
+   * 
+   * RETURNS:
+   * newDescription: A list of all the descriptions from the cards that were chosen.
+   */
 
+  var newDescription = [];
 
-/*
-function showDescription(cardId) {
-  var description = document.getElementById("infoArea");
-  const message = document.getElementById(cardId + "-description").innerHTML
-  description.textContent = message;
+  cardList.forEach(card => {
+    if (card._card.classList.contains('highlighted')) {
+      resources.wealth -= card.cost;
+      resources.gpt += card.gpt;
+      resources.happiness += card.happiness;
+      resources.science += card.science;
+
+      newDescription.push(card.description);
+
+      populateCards(card.hardChildren);
+      card.hardChildren.forEach(hardChild => {
+        cardList.push(hardChild);
+      })
+    
+      card._card.classList.remove('highlighted');
+      card.hide()
+    }
+
+  })
+
+  return newDescription;
 }
 
-function hideDescription(cardId) {
-  var description = document.getElementById("infoArea");
-  description.textContent = "Nothing yet";
+
+function updateDescriptions(descriptionList) {
+
+  const descriptionArea = document.getElementById('infoArea');
+
+  descriptionArea.innerHTML = '';
+
+  if (descriptionList.length == 0) {
+    const paragraph = document.createElement('p');
+
+    paragraph.textContent = 'Your people have not succeeded in any meaningful research over the past several years.';
+
+    descriptionArea.appendChild(paragraph);
+  }
+
+  descriptionList.forEach(desc => {
+
+    const paragraph = document.createElement('p');
+
+    paragraph.textContent = desc;
+
+    descriptionArea.appendChild(paragraph);
+  })
+
 }
-*/
-// Add more game logic if needed
