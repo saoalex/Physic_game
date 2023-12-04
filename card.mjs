@@ -63,10 +63,15 @@ class techCard {
     }
 
     // Function to add a soft child to the card
-    addSoftChild(childCard) {
-        this.softChildren.push(childCard);
-        // Update the displayed number of soft children
-        // this.updateSoftChildrenCount();
+    addSoftChild(childCard, discount) {
+        /**
+         * Adds a soft child and a discount value to the card.
+         * 
+         * Stores both as a two value array. The 0th index is the card, the 1st index is the discount.
+         */
+        
+        const newChild = [childCard, discount];
+        this.softChildren.push(newChild);
     }
 
     createCard() {
@@ -132,14 +137,50 @@ class techCard {
         this.box.style.display = 'block';
     }
     
-    
     hide() {
         /* 
         This removes the card from the html.
         */
         this._card.remove();
     }
+
+    softDiscount(discount) {
+        /**
+         * This function is used if the soft prerequisite of this techCard is researched.
+         * 
+         * The discount variable it takes is found in index 1 of the array that is stored in the softChildren attribute.
+         */
+
+        this._cost -= discount;
+    }
 }
+
+
+class wonder extends techCard {
+    constructor(name, cost, description, gpt, happiness, science, startTime, endTime) {
+        /**
+         * This class is specifically for building wonders like stonehenge. It includes a start and ending year which dictates when the wonder can be constructed.
+         */
+        super(name, cost, description, gpt, happiness, science);
+        this._times = [startTime, endTime];
+    }
+
+    get times() {
+        return this._times;
+    }
+
+    checkTime(year) {
+        /**
+         * This function takes the current year of the game, and returns true if this wonder can be built in that year. If not, return false.
+         */
+        if (this._times[0] < year && year < this._times[1]) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
 
 
 function startCards() {
@@ -175,6 +216,11 @@ function startCards() {
     return cardList;
 }
 
+function discountCards(softChildren) {
+    softChildren.forEach(child => {
+      child.softDiscount();
+    })
+}
 
 function updateCards(cardList) {
     /*
@@ -330,11 +376,6 @@ function initializeTechTree(stoneTools, selectBreed, earlyAstro) {
 
 
 
-    
-
-
-    
-
 
     
 
@@ -382,7 +423,7 @@ function initializeTechTree(stoneTools, selectBreed, earlyAstro) {
 }
 
 
-export {updateCards, startCards, techCard}
+export {updateCards, startCards, techCard, discountCards}
 
 
 

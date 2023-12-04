@@ -1,11 +1,14 @@
-import {startCards, techCard} from './card.mjs';
+import {startCards, techCard, discountCards} from './card.mjs';
 
 // Universal constants
 let resources = {
   wealth: 100,
   happiness: 100,
   science: 100,
-  gpt: 0
+  gpt: 0,
+
+  // Including the year in resources for now until we decide a better place to put it.
+  year: -10500
 }
 
 const events = [
@@ -163,6 +166,13 @@ function updateResourceDisplay() {
   document.getElementById('happinessBar').textContent = Math.round(resources.happiness);
   document.getElementById('scienceBar').textContent = Math.round(resources.science);
   document.getElementById('gptBar').textContent = resources.gpt;
+
+  if (resources.year < 0) {
+    document.getElementById('yearBar').textContent = resources.year + " BCE";
+  }
+  else {
+    document.getElementById('yearBar').textContent = resources.year + " CE";
+  }
 }
 
 // Function to show the event when end turn button is clicked on.
@@ -193,6 +203,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Display the descriptions on the website infoArea.
     updateDescriptions(newDescriptions);
 
+    // Increase the year for the next turn.
+    moveTime();
+
     // Update the resources after everything has been factored into the new resources.
     updateResourceDisplay();
   });
@@ -210,8 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
   closeEventButton.addEventListener('click', closeModal);
 
 });
-
-
 
 // Intialization code for restart button
 document.addEventListener('DOMContentLoaded', () => {
@@ -241,6 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
   populateCards(cardList);
 });
 
+
 function updateCards(cardList) {
   /**
    * This function will update everything to do with the cards inbetween turns.
@@ -262,12 +274,14 @@ function updateCards(cardList) {
       resources.happiness += card.happiness;
       resources.science += card.science;
 
-      newDescription.push(card.description);
+      newDescription.push(card.name + ": " + card.description);
 
       populateCards(card.hardChildren);
       card.hardChildren.forEach(hardChild => {
         cardList.push(hardChild);
       })
+
+      discountCards(card.softChildren);
     
       card._card.classList.remove('highlighted');
       card.hide()
@@ -280,6 +294,13 @@ function updateCards(cardList) {
 
 
 function updateDescriptions(descriptionList) {
+  /**
+   * This function takes a list of descriptions that must be strings.
+   * 
+   * 
+   * Then it fills it with the descriptions for each card that was selected.
+   * 
+   */
 
   const descriptionArea = document.getElementById('infoArea');
 
@@ -293,6 +314,7 @@ function updateDescriptions(descriptionList) {
     descriptionArea.appendChild(paragraph);
   }
 
+
   descriptionList.forEach(desc => {
 
     const paragraph = document.createElement('p');
@@ -301,5 +323,32 @@ function updateDescriptions(descriptionList) {
 
     descriptionArea.appendChild(paragraph);
   })
-
 }
+
+function moveTime() {
+  /**
+   * This function will move time forward depending on what the year is. 
+   * 
+   * In earlier years, time will move faster per turn, and it gets slower the closer you get to the modern era.
+   */
+
+  if (resources.year < 0) {
+    resources.year += 500
+  }
+
+  else if (0 <= resources.year && resources.year < 1800) {
+    resources.year += 100
+  }
+
+  else {
+    resources.year += 10
+  }
+}
+
+
+// This object completedTech will store whether a tech has been researched, so that we can check it for events.
+let completedTech = {
+  seismoscope: false
+}
+
+
