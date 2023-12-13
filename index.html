@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Civilization game</title>
-        <link rel="stylesheet" href="teststyle.css">
+        <link rel="stylesheet" href="style.css">
         </head>
         
 <body>
@@ -17,40 +17,63 @@
 
 <!--Game UI-->
 <div id="gameContainer" style="display: none;">
-    <!--Add Background image
-    <img id="backGround" src="library/backgrounds/brownBack.png" alt="backgroundImage">
-    -->
 
+    <!--Division for military, circus building-->
+    <div id="buildArea">
+        <div class="build-buttons">
+            <div class="building-option">
+                <button id="build-military">Build Military</button>
+                <img src="library/backgrounds/sign.png" alt="militaryBuilding">
+            </div>
+            <div class="building-option">
+                <button id="build-circus">Build Circus</button>
+                <img src="library/backgrounds/sign.png" alt="circusBuilding">
+            </div>
+            <div class="building-option">
+                <button id="build-school">Build School</button>
+                <img src="library/backgrounds/sign.png" alt="schoolBuilding">
+            </div>
+        </div>
+    </div>  
+
+    <div id="eventchance">Chance of events: <span id="chanceBar">0</span></div>
+    <div id="randomvalue">test value: : <span id="testBar">0</span></div>
+    <div id="barbarian">Chance of Barbarians: : <span id="barbarianBar">0</span></div>
     <div class="topArea">
-
         <!--Division for story bar-->
         <div id="eventArea">Welcome</div>
 
         <!--Division for resources-->
-        <div id="resourceArea">
-            <div class="resource">Gold: <span id="wealthBar">100</span></div>
-            <div class="resource">Happiness: <span id="happinessBar">100</span></div>
-            <div class="resource">Science: <span id="scienceBar">100</span>%</div>
-            <div class="resource">Gold per Turn: <span id="gptBar">0</span></div>
-        </div>
+        <div id="yearArea">Year: <span id="yearBar">10500 BCE</span></div>
 
+        <div id="resourceArea">
+            <div class="columns">
+                <div class="resource">Gold: <span id="wealthBar">100</span></div>
+                <div class="resource">Happiness: <span id="happinessBar">100</span></div>
+            </div>
+
+            <div class="columns">
+                <div class="resource">Science: <span id="scienceBar">100</span>%</div>
+                <div class="resource">Gold per Turn: <span id="gptBar">0</span></div>
+            </div>
+        </div>
     </div>
 
     <!--Division for description-->
     <div id="infoArea">
         Welcome to "History of Physics: The Game!" (name and game in progress).
-        In this game you manage the research done by a nondescript civilization from the dawn of humankind to the near future.
+        In this game you manage the research done by a nondescript civilization from the dawn of humankind to the near future.<br>
 
-        This is still very much a work in progress, and many parts we intended to implement have yet to work. For example, the "science" resource does not do anything yet, but it will eventually impact the cost of new technologies and increase the chances of good events happening.
+        This is still very much a work in progress, and many parts we intended to implement have yet to work. For example, the "science" resource does not do anything yet, but it will eventually impact the cost of new technologies and increase the chances of good events happening.<br>
 
-        You must pay for new technologies with the gold that you have, but there is no limit on how many technologies you may research, or anything stopping you from spending more gold than you have (although this will be fixed).
+        You must pay for new technologies with the gold that you have, but there is no limit on how many technologies you may research, or anything stopping you from spending more gold than you have (although this will be fixed).<br>
 
         To begin the game, click on one or more of the cards below, and then click the "end turn" button. Your objective is to get as much happiness as possible for your civilization.
     </div>
 
     <!--Division for card container-->
+
     <div id="cardContainer">
-        
         <!--Action button-->
         <button id="endTurnButton">End Turn</button>
         <button id="restartButton">Restart</button>
@@ -67,7 +90,7 @@
     </div>
 </div>
 
-<script type="module" src="testscript.mjs"></script>
+<script src="main.js"></script>
 
 </body>
 </html>
