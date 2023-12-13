@@ -48,7 +48,7 @@
     */
 .topArea {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     width: 100%;
     height: 18%;
     margin-bottom: 6px;
@@ -71,14 +71,36 @@
     box-sizing: border-box;
     height: 100%;
     width: 40%;
-    display: grid;
     border:1px solid #000;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.columns {
+    display: flex;
+    flex-direction: column;
 }
 
 .resource {
+    display: flex;
+    justify-content: center;
     font-size: 25px;
-    text-align: center;
-    margin:auto;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    margin-right: 60px;
+    width: 100%;
+}
+
+#yearArea {
+    position: absolute;
+    background-color: #333;
+    color: #fff;
+    padding: 8px 18px;
+    font-size: 20px;
+    border-radius: 0 0 0 10px;
 }
 
 
@@ -231,3 +253,39 @@
   }
   
 
+/* Style the function area */
+#buildArea {
+    position: absolute;
+    top: 135px;
+    left: 120px;
+    padding: 20px;
+    width: 200px; /* Adjust the width as needed */
+    min-height: 400px; /* Adjust the height as needed */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column; /* Arrange buttons and images vertically */
+    align-items: flex-start; /* Align buttons to the left */
+}
+
+/* Style the building buttons */
+.build-buttons {
+    display: flex;
+    flex-direction: column; /* Arrange buttons and images vertically */
+}
+
+.building-option {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px; /* Add spacing between buttons and images */
+}
+
+/* Style the images to make them smaller */
+.building-option img {
+    width: 85px; /* Adjust the image width as needed */
+    height: auto; /* Maintain aspect ratio */
+}
+
+.building-option button {
+    padding: 10px 20px; /* Adjust padding to make buttons larger */
+    font-size: 16px; /* Adjust font size as needed */
+}
