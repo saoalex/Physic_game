@@ -89,6 +89,7 @@ const events = [
   }
 ];
 
+let turnCount = 1; // Initialize user's turn
 
 // Initilization code of Start menu
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -121,16 +122,35 @@ function triggerEvent(event) {
     }
   }
 
-  // Ensure resources don't go negative
-  /*
-  for (const resource in resources) {
-    if (resources[resource] < 0) {
-      resources[resource] = 0;
-    }
-  }*/
-
   // Update UI or other game elements based on new resource values
-  //updateResourceDisplay(); This function is now called in the main button function.
+  //updateResourceDisplay();
+  showEventModal(event);
+}
+
+
+function tryTriggerEvent() {
+  const triggerChance = 0.6; // 60% chance to trigger an event
+
+  if (Math.random() < triggerChance) {
+    // Trigger a random event
+    const randomEvent = events[Math.floor(Math.random() * events.length)];
+    triggerEvent(randomEvent);
+  }
+}
+
+
+function showEventModal(event) {
+  document.getElementById('event-title').innerHTML = event.title;
+  document.getElementById('event-description').innerHTML = event.description;
+
+  const modal = document.getElementById('event-modal');
+  modal.style.display = 'block';
+}
+
+
+function updateTurn() {
+  const messageArea = document.getElementById('eventArea');
+  messageArea.textContent = `Turn: ${turnCount}`;
 }
 
 
@@ -169,15 +189,12 @@ document.addEventListener('DOMContentLoaded', () => {
     resources.wealth += resources.gpt;
 
     // Select a random event and trigger its effects
+    turnCount ++;
+    updateTurn();
+    if (turnCount > 3) {
     const randomEvent = events[Math.floor(Math.random() * events.length)];
-    triggerEvent(randomEvent)
-
-    // Update the modal content
-    document.getElementById('event-title').textContent = randomEvent.title;
-    document.getElementById('event-description').innerHTML = randomEvent.description;
-
-    // Show the modal
-    eventModal.style.display = 'block';
+    tryTriggerEvent(randomEvent)
+    }
 
     // card populate and get card descriptions.
     const newDescriptions = updateCards(cardList);
@@ -327,7 +344,10 @@ function moveTime() {
   }
 }
 
+
 // This object completedTech will store whether a tech has been researched, so that we can check it for events.
 let completedTech = {
   seismoscope: false
 }
+
+
