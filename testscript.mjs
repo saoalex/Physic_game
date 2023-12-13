@@ -104,7 +104,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
     menuContainer.style.display = 'none';
     gameContainer.style.display = 'block';
   });
-
 });
 
 
