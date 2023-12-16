@@ -239,14 +239,18 @@ function startCards() {
   const selectBreed = new techCard('Selective Breeding', 17, 'Wild crops and animals are not the best foods for an agricultural society, but by breeding the ones that are the most edible, you manage to domesticate them and make them more suitable for mass cultivation. This is an early example of human impacts on the environment and is necessary for the rise of agricultural civilizations..', 12, 3, 0)
   const earlyAstro = new techCard('Early Astronomy', 15, 'Your people begin looking to the skies and noticing patterns in the motions of the Sun, Moon, and the stars. You attempt, however you can, to explain the motions and make predictions, typically spiritually. In a sense, astronomy is the first science.', 0, 15, 0);
 
-  initializeTechTree(stoneTools, selectBreed, earlyAstro);
+  const timedTechs = initializeTechTree(stoneTools, selectBreed, earlyAstro);
 
   var cardList = [];
   cardList.push(stoneTools);
   cardList.push(selectBreed);
   cardList.push(earlyAstro)
   
-  return cardList;
+  //return cardList;
+  return {
+    a: cardList,
+    b: timedTechs
+  };
 }
 
 function initializeTechTree(stoneTools, selectBreed, earlyAstro) {
@@ -362,54 +366,6 @@ function initializeTechTree(stoneTools, selectBreed, earlyAstro) {
   const prost = new techCard('Prosthetics', 850, 'An advanced understanding of mechanical machinery and the body itself leads to the development of movable prosthetic limbs, replete with sockets and joints. These prosthetics evolve to more naturally integrate into the body and even be controllable by electrical impulses from the nervous system. They enable an unfortunate segment of your population to regain their dignity and mobility.', 10, 30, 5);
   const epidModel = new techCard('Epidemiological Modelling', 1000, 'The wealth of data your society generates and the sophisticated computing machinery you have to analyse allows your scientists to create sophisticated models of the spread of disease. They can track epidemics in real time, make projections, and recommendations for containment and future preparation. Surely it will prevent any major pandemics from occurring???', 10, 10, 5);
   const carbCapt= new techCard('Carbon Capture’, 3000, The impact of humanity on the composition of the atmosphere is indisputable and the effects of the resultant warming are already being felt. In a desperate bid, you begin initiatives to remove carbon dioxide and other greenhouse gases from the atmosphere. These measures include devices to scrub carbon from polluting sources, chemical processes to capture extant carbon from the air, and reservoirs to store them underground. These methods are expensive and show limited promise as climate solutions.', 4, 5, 0);
-
-  /** 
-  selectBreed.addHardChild(earlyAgri);
-  stoneTools.addHardChild(urbanTech);
-  stoneTools.addHardChild(irriDike);
-  stoneTools.addHardChild(stoneHenge);
-  stoneTools.addHardChild(sunDials);
-  stoneTools.addHardChild(ironMetal);
-  earlyAstro.addHardChild(babyAstro);
-  earlyAgri.addHardChild(terraFarm);
-  urbanTech.addHardChild(pythMath);
-  urbanTech.addHardChild(romeConc);
-  pythMath.addHardChild(axiomGeom);
-  pythMath.addHardChild(natPhil);
-  pythMath.addHardChild(statics);
-  sunDials.addHardChild(planetAstro);
-  planetAstro.addHardChild(heliomodel1);
-  natPhil.addHardChild(zero);
-  natPhil.addHardChild(inertia);
-  natPhil.addHardChild(optics);
-  natPhil.addHardChild(alchemy);
-  natPhil.addHardChild(expResearch);
-  ironMetal.addHardChild(seismo);
-  planetAstro.addHardChild(calAstro);
-  planetAstro.addHardChild(comet);
-  zero.addHardChild(algebra);
-  urbanTech.addHardChild(windPower);
-  alchemy.addHardChild(gunPowder1);
-  statics.addHardChild(earlyMech);
-  planetAstro.addHardChild(geoMorph);
-  expResearch.addHardChild(magDec);
-  ironMetal.addHardChild(gothArch);
-  windPower.addHardChild(manuShips);
-  earlyAgri.addHardChild(agriField);
-  gunPowder1.addHardChild(gunPowder2);
-  earlyMech.addHardChild(mechClocks);
-  optics.addHardChild(eyeGlasses);
-  algebra.addHardChild(madApprox);
-  mechClocks.addHardChild(printPress);
-  geoMorph.addHardChild(currWind);
-  expResearch.addHardChild(empire);
-  agriField.addHardChild(natRefig);
-  algebra.addHardChild(comVar);
-  algebra.addHardChild(mapProj);
-  manuShips.addHardChild(newWorld);
-  empire.addHardChild(galileoExp);
-  heliomodel1.addHardChild(helioModel2);
-  */
   
   stoneTools.addHardChild(earlyAgri);
   stoneTools.addHardChild(urbanTech);
@@ -684,17 +640,19 @@ function initializeTechTree(stoneTools, selectBreed, earlyAstro) {
   blackholeImg.addSoftChild(ftlProp, 300);
 
 
-  /*
+  
   const earlyMan = [babyAstro]
   const ironAge = [pythMath]
   const ancientGreece = [natPhil, statics]
-  const deadJesus = [zero, inertia, comets]
+  const deadJesus = [zero, inertia, comet]
   const goldenIslam = [optics, alchemy]
   const midevalTimes = [gunPowder2, mechClocks]
   const renaissance = [printPress, empire, natRefig]
   const enlightenment = [elecGen]
   const modernDay = [aiEth]
-  */
+  
+return [earlyMan, ironAge, ancientGreece, deadJesus, goldenIslam, midevalTimes, renaissance, enlightenment, modernDay]
+  
 }
 //#endregion
 
@@ -1102,7 +1060,11 @@ document.addEventListener('DOMContentLoaded', () => {
 //#region Initialize the Cards
 
 // This will initialize the cards at the beginning of the game, as well as keep a running list of all cards in the game at the moment.
-var cardList = startCards();
+
+//var cardList = startCards();
+var result = startCards();
+var cardList = result.a;
+var timedTech = result.b;
 
 
 function populateCards(cardList) {
@@ -1211,15 +1173,35 @@ function updateDescriptions(descriptionList) {
   })
 }
 
+
+// These variables are used to stop timedTechs from being put into the game a second time.
+// They are used in the function moveTime()
+var earlyMan0 = false;
+var bronzeAge0 = false;
+var ancientGreece0 = false;
+var deadJesus0 = false;
+var goldenIslam0 = false;
+var midevalTimes0 = false;
+var renaissance0 = false;
+var enlightenment0 = false;
+var modernDay0 = false;
+
+
 function moveTime() {
   /**
-   * This function will move time forward depending on what the year is. 
+   * This function will move time forward depending on what the year is.
+   * 
+   * It will also manage adding techs that have no hard prerequisites at their associated era. 
    * 
    * In earlier years, time will move faster per turn, and it gets slower the closer you get to the modern era.
    */
 
-  if (resources.year < 0) {
-    resources.year += 1500
+  if (resources.year < -2000) {
+    resources.year += 3000
+  }
+
+  else if(-2000 <= resources.year  && resources.year < 0) {
+    resources.year += 250
   }
 
   else if (0 <= resources.year && resources.year < 1800) {
@@ -1229,6 +1211,98 @@ function moveTime() {
   else {
     resources.year += 10
   }
+
+
+  // This will add babylonian astronomy once the year 2300 BC has passed.
+  if (resources.year > -2300 && earlyMan0 === false) {
+    populateCards(timedTech[0]);
+    //cardList.push(timedTech[0][0]);
+    timedTech[0].forEach(card => {
+      cardList.push(card);
+    })
+    earlyMan0 = true;
+  }
+
+  // This will add pythMath once the bronze age rolls around, 1200 BC.
+  if (resources.year > -1200 && bronzeAge0 === false) {
+    populateCards(timedTech[1]);
+    //cardList.push(timedTech[1][0]);
+    timedTech[1].forEach(card => {
+      cardList.push(card);
+    })
+    bronzeAge0 = true;
+  }
+
+  // This will add ancient greek stuff, natural philosophy is 600 BC, so I set it to 600 BC.
+  if (resources.year > -600 && ancientGreece0 === false) {
+    populateCards(timedTech[2]);
+    timedTech[2].forEach(card => {
+      cardList.push(card);
+    })
+    ancientGreece0 = true;
+  }
+
+  // This will add techs from around the year zero.
+  if (resources.year >= 0 && deadJesus0 === false) {
+    populateCards(timedTech[3]);
+    timedTech[3].forEach(card => {
+      cardList.push(card);
+    })
+    deadJesus0 = true;
+  }
+
+  // yadayadayada.
+  if (resources.year >= 600 && goldenIslam0 === false) {
+    populateCards(timedTech[4]);
+    timedTech[4].forEach(card => {
+      cardList.push(card);
+    })
+    goldenIslam0 = true;
+  }
+
+
+  if (resources.year >= 1000 && midevalTimes0 === false) {
+    populateCards(timedTech[5]);
+    timedTech[5].forEach(card => {
+      cardList.push(card);
+    })
+    midevalTimes0 = true;
+  }
+
+
+  if (resources.year >= 1400 && renaissance0 === false) {
+    populateCards(timedTech[6]);
+    timedTech[6].forEach(card => {
+      cardList.push(card);
+    })
+    renaissance0 = true;
+  }
+
+
+  if (resources.year >= 1780 && enlightenment0 === false) {
+    populateCards(timedTech[7]);
+    timedTech[7].forEach(card => {
+      cardList.push(card);
+    })
+    enlightenment0 = true;
+  }
+
+
+  if (resources.year >= 2010 && modernDay0 === false) {
+    populateCards(timedTech[8]);
+    timedTech[8].forEach(card => {
+      cardList.push(card);
+    })
+    modernDay0 = true;
+  }
+
+  
+
+
+
+
+
+
 }
 
 
