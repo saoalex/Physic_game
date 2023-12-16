@@ -410,7 +410,7 @@ function initializeTechTree(stoneTools, selectBreed, earlyAstro) {
   empire.addHardChild(galileoExp);
   heliomodel1.addHardChild(helioModel2);
   */
-
+  
   stoneTools.addHardChild(earlyAgri);
   stoneTools.addHardChild(urbanTech);
   stoneTools.addHardChild(irriDike);
@@ -684,7 +684,7 @@ function initializeTechTree(stoneTools, selectBreed, earlyAstro) {
   blackholeImg.addSoftChild(ftlProp, 300);
 
 
-
+  /*
   const earlyMan = [babyAstro]
   const ironAge = [pythMath]
   const ancientGreece = [natPhil, statics]
@@ -694,6 +694,7 @@ function initializeTechTree(stoneTools, selectBreed, earlyAstro) {
   const renaissance = [printPress, empire, natRefig]
   const enlightenment = [elecGen]
   const modernDay = [aiEth]
+  */
 }
 //#endregion
 
