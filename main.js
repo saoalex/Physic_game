@@ -701,6 +701,12 @@ const maintenanceCosts = {
 };
 
 // Function to handle building construction when a button is clicked
+const mPrice = document.getElementById('militaryPrice');
+const cPrice = document.getElementById('circusPrice');
+const sPrice = document.getElementById('schoolPrice');
+mPrice.textContent = buildingCosts.military
+cPrice.textContent = buildingCosts.circus
+sPrice.textContent = buildingCosts.school
 function buildBuilding(buildingType) {
   if (!resources.buildings[buildingType]) {
       // Deduct the gold cost and mark the building as constructed
@@ -979,6 +985,7 @@ document.addEventListener('DOMContentLoaded', () => {
   endTurnButton.addEventListener('click', () => {
     // BEFORE ANYTHING HAPPENS, CHECK IF GOLD WILL BECOME NEGATIVE:
     if (debtChecker(cardList)) {
+      alert("You do not have enough gold!")
       return;
     }
     
