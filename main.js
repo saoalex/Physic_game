@@ -18,6 +18,8 @@ class techCard {
       this._science = science; // This is societal support
       this._hardChildren = [];
       this._softChildren = [];
+      this._prereq_number = 0;
+      this._softChildDiscount = [];
 
       // Creating a card display here
       this._card = this.createCard();
@@ -55,10 +57,27 @@ class techCard {
   get softChildren() {
       return this._softChildren;
   }
+  
+  get softChildDiscount() {
+      return this._softChildDiscount;
+  }
+
+  get prereq_number() {
+    return this._prereq_number;
+  }
+
+  set cost(newCost) {
+    this._cost = newCost;
+    const costElement = this._card.querySelector('.card-cost');
+    if (costElement) {
+      costElement.textContent = `Cost: ${this._cost}`;
+    }
+  }
 
   // Function to add a hard child to the card
   addHardChild(childCard) {
       this.hardChildren.push(childCard);
+      childCard._prereq_number = childCard._prereq_number + 1
       // Update the displayed number of hard children
       // this.updateHardChildrenCount();
   }
@@ -68,11 +87,10 @@ class techCard {
       /**
        * Adds a soft child and a discount value to the card.
        * 
-       * Stores both as a two value array. The 0th index is the card, the 1st index is the discount.
+       * Stores both in their respective arrays. Get the discount based on the array index of the child card.
        */
-      
-      const newChild = [childCard, discount];
-      this.softChildren.push(newChild);
+      this.softChildren.push(childCard);
+      this.softChildDiscount.push(discount);
   }
 
   createCard() {
@@ -87,10 +105,10 @@ class techCard {
       const new_card = document.createElement('div');
       new_card.className = 'card';
       new_card.innerHTML = `<div class="card-title">${this._name}</div>
-                      <div class="card-value">Cost: ${this._cost} </div>
+                      <div class="card-value card-cost">Cost: ${this._cost} </div>
                       <div class="card-value">+${this._gpt} Gold per Turn</div>
-                      <div class="card-value">+${this._happiness} Happiness</div>
-                      <div class="card-value">+${this._science} Support</div>`;
+                      <div class="card-value">${this._happiness >= 0 ? '+' : '-'}${Math.abs(this._happiness)} Happiness</div>
+                      <div class="card-value">${this._science >= 0 ? '+' : '-'}${Math.abs(this._science)} Science</div>`;
 
       return new_card;
   }
@@ -122,9 +140,20 @@ class techCard {
       Example use:
       techCard1.appendTo(document.body);
 
+      First it will check if the required number of hard prerequisite cards have been researched. 
+      If there are still more techs needed, it will reduce the prereq number by 1, and not append.
+      If the call to this function is called by the last tech needed, then the card will be appended to the html.
+
       This line will place the card in the body of the document.
       */
-      parentElement.appendChild(this._card);
+      if (this._prereq_number > 0) {
+        this._prereq_number = this._prereq_number - 1
+      }
+
+      if (this._prereq_number == 0) {
+        parentElement.appendChild(this._card);
+      }
+      
   }
 
   
@@ -152,7 +181,13 @@ class techCard {
        * The discount variable it takes is found in index 1 of the array that is stored in the softChildren attribute.
        */
 
-      this._cost -= discount;
+      this.cost = this._cost - discount;
+  }
+
+  updateDisplayAfterDiscount() {
+    this.hide();
+    this._card = this.createCard();
+    this.show();
   }
 }
 
@@ -214,71 +249,6 @@ function startCards() {
   return cardList;
 }
 
-function discountCards(softChildren) {
-  softChildren.forEach(child => {
-    child.softDiscount();
-  })
-}
-
-function updateCards(cardList) {
-  /*
-
-  THIS FUNCTION CURRENTLY DOES NOT SEEM TO WORK AS INTENDED.
-
-  This function should be called every time a turn is ended.
-
-  It checks to see if any cards are highlighted.
-  If a card is highlighted, it records the stats from the card, removes the card, and returns the summation of the stats.
-
-  The returning values are:
-
-  newCards: The new list of cards that should be displayed.
-  changeGold: The change in gold that the player should have. Should be a negative number.
-  changeGPT: The change in gold per turn.
-  changeHappiness: The change in happiness after the turn.
-  changeScience: The change in science or support after the turn.
-  newDescription: A list of all the descriptions of each card. This will need to be looped over to be displayed.
-  */
-
-  var newCards = [];
-
-  var changeGold = 0;
-  var changeGPT = 0;
-  var changeHappiness = 0;
-  var changeScience = 0;
-
-  var newDescription =  [];
-
-  cardList.forEach(card => {
-      if (card._card.classList.contains('highlighted')) {
-          changeGold += -card.cost;
-          changeGPT += card.gpt;
-          changeHappiness += card.happiness;
-          changeScience += card.science;
-          
-          newDescription.push(card.description);
-          
-          card.hardChildren.forEach(hardChild => {
-              newCards.push(hardChild);
-          })
-          
-          card._card.classList.remove('highlighted');
-          card.hide();
-
-      } else {
-          // Possible bug here, old cards are put into new list here,
-          // but the cards have not been removed from the html. If that is a problem,
-          // the solution is probably to include card.hide(); below.
-          // card.hide();
-          newCards.push(card);
-      }
-  })
-
-  const statChanges = [changeGold, changeGPT, changeHappiness, changeScience];
-
-  return newCards, statChanges, newDescription;
-}
-
 function initializeTechTree(stoneTools, selectBreed, earlyAstro) {
   const earlyAgri = new techCard('Early Agriculture', 20, 'Wild crops and animals are not the best foods for an agricultural society, but by breeding the ones that are the most edible, you manage to domesticate them and make them more suitable for mass cultivation. This is an early example of human impacts on the environment and is necessary for the rise of agricultural civilizations.', 15, 10, 0);
   const urbanTech = new techCard('Urban Technology', 15, 'You create the earliest civilizations, in the forms of tribes and villages as people have more resources.', 12, 10, 0);
@@ -324,8 +294,76 @@ function initializeTechTree(stoneTools, selectBreed, earlyAstro) {
   const mapProj = new techCard('Map Projections', 70, 'With the knowledge gained from countless explorations, your people now can create maps representing the surface of the globe. This gives your people a better understanding of the world and benefits navigation and wayfinding.', 15, 10, 0);
   const newWorld = new techCard('Discovery of the New World', 500, 'Your sailors come back with news that they have found an entirely new continent, with lots of precious resources and people. You can make the most of this opportunity by exploiting the new land and its people.. Unfortunately the propagation of disease kills tens of millions of the indigenous inhabitants.', 100, -80, 0);
   const galileoExp = new techCard('Galileo\'s Experiments', 30, 'A dude named Galileo (no relation to Galileo) dropped some weights off of a tower to demonstrate that objects fall at the same speed regardless of weight.', 0, 0, 5);
-  const helioModel2 = new techCard('Heliocentric Model', 80, 'Some natural philosophers have come up with a heliocentric model, which contradicts the current geocentric model of the solar system. Many people in your society are unhappy with this discovery, and are confronted with humanity’s loss of significance. The head researcher of the team is banished for heresy.', 0, -15, 50);
+  const helioModel2 = new techCard('Better Heliocentric Model', 80, 'Some natural philosophers have come up with a heliocentric model, which contradicts the current geocentric model of the solar system. Many people in your society are unhappy with this discovery, and are confronted with humanity’s loss of significance. The head researcher of the team is banished for heresy.', 0, -15, 50);
+  const calculus = new techCard('Calculus', 275, 'A drive to understand the nature of motion and change leads your scholars to develop the notion of limits and infinitesimal. These powerful mathematical tools unlock a deeper understanding of the nature of functions and the world they describe, proving foundational for later developments.', 0, 3, 20);
+  const elecGen = new techCard('Electrostatic Generator', 300, 'Your scientists develop a strange contraption containing sulfur that emits bolts of light when applied to certain objects. Further research into what is behind this effect (electricity) can no be more easily done.', 3, 5, 20);
+  const teleScope = new techCard('Invention of Telescopes', 500, 'A contraption made to observe distant objects is the latest to come out of your civilization. It initially uses a series of lenses to take a far-away image, clean it up, and enlarge it for the view. Your scientists also experiment with using mirrors to create a different kind of telescope. Using this new equipment, you can now easily look up into the night sky and see what planets and stars look like.', 2, 5, 20);
+  const newtonMotion = new techCard('Newton’s Laws of Motion', 410, 'Based on the experiments of Galileo, Newton overthrows the Aristotolean worldview with his three laws of motion that allow for predicting the future motion of bodies and imply conservation of momentum. He applies it successfully to many systems. This mathematical description of motion represents the dawn of modern physics.', 12, 10, 15);
+  const planetMotion = new techCard('Planetary Motion', 350, 'Equipped with a newly developed understanding of the Solar System, Tycho Brahe makes exquisite observations of the motions of the planets, leading Kepler to discern three laws of planetary motion, such that the planets orbit in ellipses. These empirical laws lead Newton to conclude that gravitation is an inverse square force.', 10, 30, 10);
+  const steamEngines = new techCard('Steam Engines', 500, 'You develop a system that takes water vapour and uses the pressure generated to actuate a piston. The system can be supplemented with gears and rods to perform heavy duty labour. Your civilization implements this technology in the most arduous positions in factories, farms, and transportation. This profoundly affects your efficiency in these sectors, increasing profits. This also has the side effect of shifting some labourers to machine operators, increasing happiness.', 15, 10, 0);
+  const waveQuake = new techCard('Wave Theory of Earthquakes', 200, 'John William Strutt, otherwise known as Lord Rayleigh, theorises that the waves seen at sea are an adequate analogy to how the Earth’s mantle and crust work. These waves can be used to study the effects of earthquakes and human infrastructure on the interior of the Earth.', 0, 10, 10);
+  const modChem = new techCard('Conservation of Mass', 300, 'Antoine Lavoisier, a chemist and physicist, performs experiments on the prevailing theory that mass changes with heat. He promptly debunks this theory, and in doing so, supports the law of the conservation of mass. This leads to a new approach to understanding chemicals. Scientists now are interested in understanding chemical events and reactions, and are moving away from alchemy towards what we would now call modern chemistry.', 0, 0, 15);
+  const lightExp = new techCard('Lightning Experiments', 200, 'Seeking to understand the nature of lightning, scientists propose experiments to fly kites in storms with a key attached on one end, hoping to conduct lightning through the kite. These daring experimenters, led by Ben Franklin, conclude that lightning is a form of electricity, a unification that harkens developments to come.', 25, -25, 5);
+  const artRefrig = new techCard('Artificial Refrigeration', 250, 'Using a vacuum pump, and later a vapour compression system using gases such as ammonia, and alcohol, you can create ice and use it to chill objects. This has immediate advantages in the household, where food that once spoiled quickly can be kept fresh for longer.', 15, 20, 15);
+  const analEng = new techCard('Analytic Engine', 390, 'Advances in science and technology require a lot of intense computations, leading many to yearn for automated ways of computing. Charles Babbage conjures a revolutionary design for a computer, a programmable machine with a full instruction set, memory, and control flow. Although he never manages to build it, the design lays the foundation for future work on automated computing.', 5, 40, 15);
+  const fluidDyn = new techCard('Fluid Dynamics', 350, 'Physicists develop a mathematical understanding of fluid motion starting from the principles of Newtonian mechanics. The culmination of this effort are the Navier-Stokes Equations, a system of partial differential equations describing conservation of momentum and mass in fluids. This theory is applied to oceanic waves, water flows in pipes, and everything in between, providing a newfound command over fluid behaviour.', 15, 0, 20);
+  const teleGraph = new techCard('Telegraph', 300, 'Using results from electricity experimentation from the electrostatic generator, you discover that electricity can be used to relay messages across distances. You put this to use in your railways to manage individual trains, and prevent deadly accidents and costly delays.', 30, 20, 0);
+  const battery = new techCard('Battery', 400, 'A physicist by the name of Alessandro Volta creates something called a Voltaic Pile. It is a stack of copper and zinc plates, separated by brine-infused paper sheets. The pile was capable of creating and maintaining a steady current. While Volta isn’t quite sure how his pile does this, it serves as inspiration to build better piles, now known as batteries, serving important roles in future scientific advancements in electricity.', 20, 15, 20);
+  const cottonGin = new techCard('Cotton Gin', 200, 'The rise of cotton demand prompts your inventors to devise more efficient harvest mechanisms, leading to the cotton gin, a device that allows for quick separation of cotton fibres from their seeds. This greatly boosts the productivity of cotton harvesters, which includes slaves throughout the American South, leading to slavery’s proliferation there.', 20, -30, 0);
+  const thermoDyn = new techCard('Thermodynamics', 450 , 'The amazing energy created by the steam engine prompts your scientists to explore the nature of heat and energy transfer. They focus their study on gases and define bulk properties, such as entropy and pressure, eventually developing four basic laws. These principles see quick application in the development of more efficient engines and other technologies.', 35, 5, 15);
+  const realAnal = new techCard('Real Analysis', 600, 'Your greatest mathematicians are uncomfortable with the existing treatment of calculus and seek to recast it as a formal and rigorous branch of mathematics, known as analysis. They study the properties of real numbers and real functions, proving incredible theorems and uncovering pathological counterexamples. The theory rests upon the epsilon-delta definition of the limit, which haunts students for decades to come.', 3, -30, 5);
+  const boolAlg = new techCard('Boolean Algebra', 300, 'An investigation of logic leads George Boole to extend algebra to deal with binary truth values (true or false) acted upon by logical operations. Esoteric in its time, it eventually provided foundational concepts in set theory and electronic computing.', 3, 0, 5);
+  const semiCond = new techCard('Semiconductors', 500, 'You discover that certain materials are not strictly conductors or strictly insulators, rather, their conductivity is in between these two extremes, and it’s resistivity decreases as temperatures increase. Your scientists use semiconductors for various purposes (selenium to transport sound via light beams, harness solar power using selenium and gold, etc.). Semiconductors such as silicon would later be used in electronic chip manufacturing.', 30, 0, 20);
+  const piezoQuartz = new techCard('Piezoelectric Properties of Quartz', 200, 'The Curie brothers apply the fact that certain materials create a temporary voltage when exposed to heat change, to crystals. This results in the discovery of quartz possessing this property. While it was relegated to the lab at first, quartz would eventually find its way into clocks.', 5, 10, 10);
+  const photoFilm = new techCard('Photography and Film', 300, 'You discover that taking a camera obscura (a closed box, with a pinhole at its front to let light pass through), and putting plated silver in the box, then exposing the plate to mercury results in an image developing from the perspective of the pin hole. Over time, your scientists work to improve the design and make it portable enough to capture subjects in realistic detail. You further flash a series of “photos” in succession, creating the illusion of a moving picture, or film. Your discovery dazzles the general public, who are eager to utilise this technology to entertain and document.', 15, 40, 0);
+  const statMech = new techCard('Statistical Mechanics', 400, 'Thermodynamics proves a smashing success, but your physicists are not satisfied with its macroscopic description of reality. They apply statistical theory to the ensembles of microscopic particles that comprise gases and are able to explain quantities like pressure and temperature in terms of their motions. This general framework comprises one of the core components of modern physics.', 8, 10, 10);
+  const elecDyn = new techCard('Electrodynamics', 900, 'Successive experiments reveal more about the nature of electricity and explore magnetism. Faraday introduces the idea of fields and discovers a changing magnetic field causes a current and Ampere discovers how currents create magnetic fields. Putting these discoveries together and applying his own brilliant insight, Maxwell posits his equations unifying and describing the complete nature of electricity and magnetism and discovers light is an electromagnetic wave. These discoveries comprise one of the most monumental achievements in science and underlie many technologies to come.', 0, 50, 30);
+  const perTable = new techCard('Periodic Table', 400, 'Advancements in chemistry lead to the discovery of several new elements, which seem to exhibit a curious periodicity in their properties that prompts many attempts to classify them. Mendeleev makes a table of the elements of the course of the day, organising by periodicity and atomic weights. His vigorous defence and use of periodicity to make predictions about new elements establishes the Periodic Table as a fundamental tool of chemistry.', 5, 10, 10);
+  const elecmagComp = new techCard('Electromechanical Computation', 850, 'Manual mechanical calculators give way to electromechanical devices, relying on parts such as switches, relays, and gears. These devices can interface with punched carts and greatly speed up tasks like census taking. Later developments introduce vacuum tubes to provide digital logic. These computers grow remarkably complex and fill entire rooms, finding myriad applications. The dream of general purpose computation lies on the horizon.', 50, 50, 50);
+  const radiation = new techCard('Radiation', 900, 'Your scientists discover that several materials glow, literally. They investigate the nature of this energy and discover that matter itself is radioactive and decays. Applying these tools, they discover new elements and treatments. Most curiously, they discover that their theory of blackbody radiation predicts infinite radiation, an obvious failure of classical physics that sets the stage for a new theory. ', 15, -5, 25);
+  const wireComm = new techCard('Wireless Communication', 700, 'The discovery of electromagnetic waves provides a new way to transmit information. Inspired by telegraphy, Marconi develops a communication scheme with radio waves and eventually transmits them across the Atlantic. Later developments allow for two way communication and radios quickly become an indispensable tool in war, commerce, and everyday life.', 50, 50, 20);
+  const flight = new techCard('Flight', 1000, 'A After numerous attempts have been made by past peoples, you finally develop a craft that is heavier than air and is still able to propel itself into the sky, and maintain its distance from the ground for a short period of time. This invention paves the way for the development of travel by air, either for pleasure, transportation, or combat.', 40, 50, 0);
+  const quartzClocks = new techCard('Quartz Clocks', 400, 'Following the discovery of piezoelectric properties in quartz, your scientists get the idea of using quartz as an oscillator, a device that uses the changes in quartz to measure time. In time, this evolves to quartz clocks, a more stable method of measuring time.', 20, 15, 10);
+  const relativity = new techCard('Relativity', 1500, 'The GOAT Albert Einstein completely reshapes the way your civilization thinks about the universe. He realises that the laws of physics are invariant, leading to crazy ideas like space and time being relative and energy and mass being related. His magnum opus is the General Theory of Relativity, which describes the universe as a four-dimensional curved spacetime continuum, with mass-energy following geodesics. His theory is as beautiful as it is revolutionary, although it lacks immediate applications.', 5, 100, 50);
+  const seisEng = new techCard('Seismic Engineering', 1000, 'You start critically examining the impacts earthquakes have on your existing infrastructure, identifying potential weak points. You use this knowledge to develop earthquake-resistant infrastructure, saving the lives of your citizens, and their property.', 0, 50, 30);
+  const haberPro = new techCard('Haber Process', 800, 'Your scientists uncover a way to create ammonia, from nitrogen, using hydrogen and iron catalysts under high temps and pressures. The process creates large amounts of ammonia, which is a critical ingredient in fertilisers for crops, and a way to create nitrates for munitions and explosive disposables. The excess nitrogen also plays a part in population increase in your civilization. Unfortunately, the process leaches toxic chemicals into groundwater sources, and contributes to the greenhouse effect.', 40, -30, 10);
+  const extragalAstro = new techCard('Extragalactic Astronomy', 950, 'For centuries, your astronomers have noted distinct collections of stars, which they used to think were nebulae in the Milky Way. A series of increasingly careful observations of the brightness of distant stars leads Edwin Hubble to conclude that there exist other galaxies beyond the Milky Ways, dramatically increasing the size of the universe. He later discovers by observing redshifts that the universe is also expanding. These discoveries further question traditional notions about humanity’s place in the universe.', 2, -10, 15);
+  const quantMech = new techCard('Quantum Mechanics', 1700, 'Classical physics fails on multiple fronts, leading your scientists to devise heuristic corrections to existing laws that involve quantizing various properties. This quantum theory is set on a proper foundation by Schrodinger, Hiesenberg, and Dirac, who establish the basic rules governing the quantum world, such as the uncertainty principle and wave nature of matter. This theory completely changes the way your civilization views the world, raising many uncomfortable questions about reality, but its success in making predictions about microscopic systems is unquestionable.', 30, -15, 75);
+  const gradDesc = new techCard('Gradient Descent', 800, 'Your evolving civilization is obsessed with optimization, leading your mathematicians to work on a method called gradient descent. It iteratively optimizes a multivariable function by following the path suggested by its gradient field, which always points in the direction of steepest ascent. The method gains increasing importance as computational power advances.', 15, 0, 10);
+  const compNet = new techCard('Computer Networks', 1500, 'You develop a system where computers can “talk” to each other. This results in better productivity from computer operators as they can now collaborate over these networks, increasing workflow, and in turn generating profits. Over time this network would encompass nearly every aspect of your civilization, from defence to social welfare, to science, to entertainment.', 50, 50, 50);
+  const transistor = new techCard('transistor', 1500, 'Your scientists create a semiconductor that has three connections to electronics. One takes an input (electrical signal/power), while a voltage is applied to the second connection, serving as the controller for the input, with the output going out of the final connector. The voltage can modify the input signal, and even amplify it. This revolutionary device allows you to perform basic mathematical operations on electric signals/power, which paves the way for groups of transistors to form a computer.', 50, 30, 50);
+  const partColl = new techCard('Particle Colliders', 2000, 'The quest to understand the fundamental components of matter leads to the advent of particle colliders, complex devices that harness electromagnetic fields to accelerate subatomic particles and smash them into each other to study interactions and create new particles. The energies of these colliders grow over time in the quest to produce more exotic particles, captivating minds but raising questions of value.', 15, 40, 20);
+  const laserMaser = new techCard('Lasers and Masers', 1000, 'Your scientists unlock the ability to produce beams of electromagnetic radiation. Using the quantum mechanical process of stimulated emission, an ensemble of atoms can be made to emit light at a very specific frequency, providing a powerful and beautiful beam. This technology quickly finds applications across research in the sciences, in technologies such as manufacturing processes and surgery, and laser light shows!', 25, 20, 40);
+  const satellites = new techCard('Satellites', 1400, 'You throw things into the sky, and discover if you throw them high enough, they escape Earth’s gravitational pull and instead orbit around the Earth. Your scientists figure out that by launching such objects with certain electronics onboard, you can have orbiters record the Earth, measure atmospheric changes, and relay messages and global position. Your citizens benefit from lightning fast wireless communication, an being able to accurately track their position on the globe using GPS.', 25, 25, 30);
+  const dna = new techCard('DNA', 1000, 'You discover the secret to life itself, polymer chains containing instructions set to build virtually any form of life. You discover that these chains are composed of 4 compounds and name them cytosine, guanine, adenine and thymine. This breakthrough in biology unleashes further potential to toy with the creation of life through altering DNA sequences. However, you also know how it can be used to determine connections between crime scene evidence and potential suspects, making for a potent litmus test for crime analysis.', 0, 20, 50);
+  const nanoTech = new techCard('Nanotechnology', 1200, 'You are now able to manipulate matter the size of nanometers. Using this, you can create new compounds for use in everyday items. If a material can be used to improve a product, chances are you are already designing nanotechnology that lets you implant said material into said product.', 20, 20, 30);
+  const atmoModel = new techCard('Atmospheric Modelling', 800, 'In the quest to predict the weather, your scientists deploy new computational tools to model the atmosphere. These models employ a sophisticated understanding of fluid dynamics and the complexities of the atmosphere. Their attempts, although successful, are ultimately constrained by the sensitivity of the atmosphere to initial conditions, leading to the discovery of chaos theory. Some scientists also model long-term patterns of the climate, raising uncomfortable questions about humanity’s impact on the planet.', 20, 35, 15);
+  const quantDot = new techCard('Quantum Dots', 1400, 'Playing around with semiconductors leads your scientists to create materials on the scale of nanometers that confine electrons, a kind of “artificial atom” known as a quantum dot. Much like atoms, they can emit and absorb light, and thus look very pretty. Their small size makes quantum effects prominent, providing a platform to study the behaviour of quantum materials and develop new technologies, such as quantum information processing and novel photovoltaics.', 15, 5, 15);
+  const graphPro = new techCard('Graphics Processing', 1600, 'The rise of electronic computers leads to a desire for more intuitive ways to interact with them, creating the field of computer graphics. It becomes a staple of computing and is especially enjoyed in activities such as modelling and gaming. As graphics become more intensive, your engineers invent dedicated semiconductor processing chips to handle them, providing many cores for parallel processing of graphics. Their massively parallel nature later leads to GPUs being applied for many non-graphical problems.', 25, 35, 15);
+  const storMed = new techCard('Storage Media', 1900, 'Computers require robust ways to store information. Your engineers develop various schemes involving sophisticated microelectronic structures, including magnetic drives, optical disks, and solid state drives. Although initially expensive, rapid developments make them cheaper and better, enabling a proliferation of storage capacity that allows your citizens to harness the full potential of computers.', 40, 40, 15);
+  const medImg = new techCard('Medical Imaging', 1800, 'Until now, doctors could only see the inside of patients during surgeries. Advances in your understanding of electromagnetism and radiation lead to novel ways of seeing inside the body without penetrating it. These include x-ray scans for bones, Computed Tomography (CT) scans for cross-sectional views of the body, and Magnetic Resonance Imaging (MRI) for soft tissues. These techniques enable doctors to better understand their patients and make informed diagnoses, improving health outcomes.', 25, 35, 5);
+  const genoSeq = new techCard('Genome Sequencing', 1950, 'While your scientists understand DNA, the entire DNA sequence that makes an organism unique (its genome) is another beast. Starting from rudimentary techniques, your scientists attempt to determine the sequence of base pairs that comprise the genomes of various species. This leads to a massive project to sequence the entire human genome. Later advances make genome sequencing a routine task, allowing for more personalised medicine and a better understanding of how organisms function and are related to each other.', 15, 15, 15);
+  const uvLith = new techCard('Extreme UV Lithography', 2100, 'The quest for more powerful electronics leads your engineers to develop a new kind of fabrication technique relying on the high frequency end of the ultraviolet spectrum. Lasers etch tiny patterns onto a substrate covered by a photoresistive material. This advanced technique allows transistors to be scaled down to a few nanometers and enables an increasing density of transistors on microprocessors.', 30, 5, 15);
+  const blackholeImg = new techCard('Blackhole Imaging', 2000, 'Following General Relativity’s prediction of black holes, their existence is later confirmed indirectly by the anomalous emission of strong electromagnetic radiation and gravitational lensing. A team of your best astrophysicists want something more, though. Using a global array of advanced radio telescopes and massive data processing, they image the event horizons of several supermassive black holes, producing stunning images that provide a new way to study these spacetime anomalies.', 5, 20, 10);
+  const aiEth = new techCard('AI Ethics', 2500, 'Decades of advancing computer hardware and software culminate in the development of machines that seem to think and learn. These primitive artificial intelligences raise many ethical considerations, such as who owns works produced by AIs, whether AIs have rights, and how to proceed with their development in a way that benefits humanity. This joint and decentralised venture brings together your best scholars from across computer science, philosophy, economics, and other disciplines.', 2, -20, 5);
+  const antiAging = new techCard('Anti-Aging', 3500, 'Can death be defeated? A group of your scientists dare to say so. Building on the promise of emerging medical interventions, such as gene therapy, regenerative medicine, and STEM cell therapy, they claim that the human lifespan can be radically extended, possibly indefinitely. The hope inspires much research, mainly focused on improving quality of life, but raises some philosophical questions about “playing God”.', 25, 50, 30);
+  const nanoLith = new techCard('Nanoimprint Lithography', 2700, 'Your nanotechnologists research new methods of fabricating nanoscale structures utilising mechanical deformation of polymer materials. This method has the advantage of being far simpler than extant nanolithography techniques, providing far greater access to nanostructures for broadened applications. ', 15, 15, 15);
+  const ftlProp = new techCard('FTL Propulsion', 1000, 'Einstein’s Relativity proclaims that matter cannot travel faster than light. But your most radical scientists are not deterred by mere words. They develop models of faster-than-light propagation, whether by exotic particles, traversable wormholes, or specialised engines that warp spacetime around a ship. These highly speculative attempts are brushed off by most of your scientists, but they may yet yield something of value…', 0, 0, 10);
+  const gravCosmo = new techCard('Gravitational Wave Cosmology', 4000, 'Seeking to see the universe in a new way, your astronomers and engineers construct giant interferometers that measure tiny ripples in spacetime generated by distant astrophysical phenomena, such as the collisions of black holes. This opens the field of gravitational wave astronomy. Different detectors at different scales (including measurements of the rotations of pulsars across the whole Milky Way) can be used to probe different regimes, including the very earliest stages of the universe', 10, 25, 25);
+  const aliens = new techCard('Extraterrestrial Life', 10000, '01001000 00000000 01100101 00000000 01101100 00000000 01101100 00000000 01101111 00000000 00100000 00000000 01001000 00000000 01110101 00000000 01101101 00000000 01100001 00000000 01101110 00000000 00100001 00000000 00100000 00000000 01010100 00000000 01101000 00000000 01100001 00000000 01101110 00000000 01101011 00000000 01110011 00000000 00100000 00000000 01100110 00000000 01101111 00000000 01110010 00000000 00100000 00000000 01110000 00000000 01101100 00000000 01100001 00000000 01111001 00000000 01101001 00000000 01101110 00000000 01100111 00000000 00100001 00000000', 500, 1000, 250);
+  const earlyMed = new techCard('Early Medicine', 40, 'Your burgeoning civilization tries to understand the nature of disease and how to combat it. They compile detailed texts listing different symptoms and providing guidance on diagnosis and cure. Their understanding of the cause of disease is understandably limited and they believe it to be a product of supernatural influences. That leads your people to sometimes attempt supernatural cures to little effect.', 5, 10, 2);
+  const anaStud = new techCard('Anatomical Studies', 40, 'Building upon early expositions of disease, the physician Galen undertakes a revolutionary study of the body by performing dissections on similar animals. He learned about different organ systems and how blood circulates through the body. His early empirical studies comes to define the field of medicine for over a millennium.', 4, 0, 10);
+  const earlySurg = new techCard('Early Surgery', 65, 'The craft of surgery makes several major advancements. Your physician Sushruta compiles detailed accounts of many surgeries, including particularly stunning results on plastic surgery. Meanwhile, Hua Tuo puts his patients under a herbal concoction during surgery, the first use of an anaesthetic. These early advancements will lay the groundwork for so much to come. ', 4, 10, 7);
+  const hosSys = new techCard('Hospital Systems', 250, 'Your society takes a giant leap towards the professionalization of medicine and the advent of a public health system by creating hospitals. These were spaces where medical knowledge was freely shared, a dedicated staff to care for patients, and hygiene practices. This concept shapes the future delivery of healthcare in your civilization.', 17, 25, 10);
+  const microScope = new techCard('Invention of the Microscope', 480, 'Leaping from a rudimentary knowledge of optics, your tinkerer\'s combine lenses and microscopes in ways that magnify very small objects - the first microscopes! While at first mere novelties, they quickly find application in the study of biological tissues, leading to the discover of red blood cells.', 2, 5, 15);
+  const germTheory = new techCard('Germ Theory of Disease', 500, 'Harnessing microscopes, your physicians make a fundamental leap in your society’s understanding of disease. They directly observe the microorganisms that comprise yeast and their self-replicating properties. Using spores of a bacterium, scientists successfully infect rats, an experimental triumph for the germ theory of disease. It overthrows “bad air” as the prime explanation for illness and leads to interventions such as sanitation to reduce disease spread.', 20, 25, 20);
+  const vax = new techCard('Vaccination', 400, 'Your physicians notice that those infected with smallpox rarely contract it again, leading to the practice of deliberately exposing people to small amounts of smallpox - variolation. Edward Jenner develops a method using cowpox - a less deadly variant - to much success and this inoculation spreads across the globe. It proves a crucial fight against the scourge of smallpox and lays the foundation for more developed vaccinations that will turn the tide for humanity against infectious disease.', 25, 35, 10);
+  const antibio = new techCard('Antibiotics', 1400, 'Now understanding the cause of disease, your scientists seek to devise ways to kill microscopic pathogens. They experiment with synthetic chemicals such as dyes, which selectively bind to and kill microbes but mostly preserve human cells. They find out that certain molds naturally kill bacteria, leading to the discovery and distribution of penicillin. New antibiotics are discovered rabidly to fight off various bacteria, creating a world largely free of death from infectious disease.', 40, 75, 10);
+  const prost = new techCard('Prosthetics', 850, 'An advanced understanding of mechanical machinery and the body itself leads to the development of movable prosthetic limbs, replete with sockets and joints. These prosthetics evolve to more naturally integrate into the body and even be controllable by electrical impulses from the nervous system. They enable an unfortunate segment of your population to regain their dignity and mobility.', 10, 30, 5);
+  const epidModel = new techCard('Epidemiological Modelling', 1000, 'The wealth of data your society generates and the sophisticated computing machinery you have to analyse allows your scientists to create sophisticated models of the spread of disease. They can track epidemics in real time, make projections, and recommendations for containment and future preparation. Surely it will prevent any major pandemics from occurring???', 10, 10, 5);
+  const carbCapt= new techCard('Carbon Capture’, 3000, The impact of humanity on the composition of the atmosphere is indisputable and the effects of the resultant warming are already being felt. In a desperate bid, you begin initiatives to remove carbon dioxide and other greenhouse gases from the atmosphere. These measures include devices to scrub carbon from polluting sources, chemical processes to capture extant carbon from the air, and reservoirs to store them underground. These methods are expensive and show limited promise as climate solutions.', 4, 5, 0);
 
+  /** 
   selectBreed.addHardChild(earlyAgri);
   stoneTools.addHardChild(urbanTech);
   stoneTools.addHardChild(irriDike);
@@ -371,6 +409,291 @@ function initializeTechTree(stoneTools, selectBreed, earlyAstro) {
   manuShips.addHardChild(newWorld);
   empire.addHardChild(galileoExp);
   heliomodel1.addHardChild(helioModel2);
+  */
+
+  stoneTools.addHardChild(earlyAgri);
+  stoneTools.addHardChild(urbanTech);
+  stoneTools.addHardChild(irriDike);
+  stoneTools.addHardChild(stoneHenge);
+  stoneTools.addHardChild(sunDials);
+  
+  selectBreed.addHardChild(earlyAgri);
+  selectBreed.addSoftChild(irriDike, 4);
+  
+  earlyAstro.addHardChild(heliomodel1);
+  earlyAstro.addHardChild(helioModel2);
+  earlyAstro.addHardChild(planetAstro);
+  earlyAstro.addSoftChild(pythMath, 5);
+  earlyAstro.addSoftChild(babyAstro, 8);
+  earlyAstro.addSoftChild(stoneHenge, 270);
+  earlyAstro.addSoftChild(sunDials, 7);
+  earlyAstro.addSoftChild(comet, 10);
+  
+  earlyAgri.addHardChild(terraFarm);
+  earlyAgri.addHardChild(agriField);
+  earlyAgri.addSoftChild(pythMath, 10);
+
+  urbanTech.addHardChild(romeConc);
+  urbanTech.addHardChild(windPower);
+  urbanTech.addHardChild(earlyMed);
+  urbanTech.addSoftChild(terraFarm, 5);
+  urbanTech.addSoftChild(pythMath, 10);
+
+  irriDike.addSoftChild(terraFarm, 4);
+
+  sunDials.addHardChild(planetAstro);
+  sunDials.addSoftChild(calAstro, 10);
+
+  pythMath.addHardChild(axiomGeom);
+  pythMath.addSoftChild(natPhil, 10);
+  pythMath.addSoftChild(statics, 10);
+
+  ironMetal.addHardChild(gothArch);
+  ironMetal.addHardChild(seismo);
+  ironMetal.addSoftChild(romeConc, 10);
+
+  earlyMed.addHardChild(anaStud);
+
+  natPhil.addHardChild(aliens);
+  natPhil.addSoftChild(zero, 10);
+  natPhil.addSoftChild(inertia, 10);
+  natPhil.addSoftChild(optics, 10);
+  natPhil.addSoftChild(alchemy, 10);
+  natPhil.addSoftChild(anaStud, 10);
+
+  statics.addHardChild(earlyMech);
+
+  planetAstro.addHardChild(calAstro);
+  planetAstro.addHardChild(magDec);
+  planetAstro.addHardChild(geoMorph);
+  planetAstro.addSoftChild(teleScope, 100);
+
+  heliomodel1.addSoftChild(helioModel2, 20);
+
+  seismo.addHardChild(waveQuake);
+
+  anaStud.addHardChild(earlySurg);
+  anaStud.addHardChild(hosSys);
+
+  earlySurg.addSoftChild(hosSys, 25);
+
+  inertia.addSoftChild(earlyMech, 65);
+  inertia.addSoftChild(galileoExp, 10);
+
+  algebra.addHardChild(madApprox);
+  algebra.addHardChild(comVar);
+  algebra.addHardChild(mapProj);
+  algebra.addHardChild(boolAlg);
+  algebra.addHardChild(calculus);
+  algebra.addHardChild(analEng);
+
+  optics.addHardChild(eyeGlasses);
+  optics.addHardChild(laserMaser);
+  optics.addHardChild(teleScope);
+  optics.addHardChild(microScope);
+
+  alchemy.addHardChild(gunPowder1);
+  alchemy.addHardChild(modChem);
+
+  windPower.addHardChild(manuShips);
+
+  expResearch.addHardChild(magDec);
+  expResearch.addSoftChild(empire, 240);
+
+  gunPowder1.addSoftChild(gunPowder2, 85);
+
+  earlyMech.addSoftChild(manuShips, 85);
+  earlyMech.addSoftChild(mechClocks, 20);
+
+  geoMorph.addHardChild(currWind);
+
+  magDec.addHardChild(newWorld);
+
+  manuShips.addHardChild(newWorld);
+
+  agriField.addSoftChild(natRefig, 20);
+
+  mechClocks.addHardChild(piezoQuartz);
+  mechClocks.addHardChild(cottonGin);
+  mechClocks.addSoftChild(steamEngines, 100);
+
+  eyeGlasses.addSoftChild(microScope, 100);
+
+  currWind.addHardChild(newWorld);
+  currWind.addSoftChild(fluidDyn, 40);
+
+  empire.addHardChild(modChem);
+  empire.addHardChild(galileoExp);
+  empire.addHardChild(lightExp);
+  empire.addHardChild(artRefrig);
+  empire.addHardChild(germTheory);
+  empire.addSoftChild(microScope, 40);
+
+  natRefig.addSoftChild(artRefrig, 50);
+
+  comVar.addSoftChild(flight, 500);
+  comVar.addSoftChild(quantMech, 250);
+
+  galileoExp.addHardChild(newtonMotion);
+
+  hosSys.addSoftChild(vax, 50);
+  hosSys.addSoftChild(prost, 100);
+
+  helioModel2.addHardChild(planetMotion);
+
+  calculus.addHardChild(realAnal);
+  calculus.addHardChild(fluidDyn);
+  calculus.addHardChild(epidModel);
+  calculus.addHardChild(statMech);
+  calculus.addHardChild(elecDyn);
+  calculus.addSoftChild(thermoDyn, 50);
+
+  elecGen.addSoftChild(lightExp, 100);
+  elecGen.addSoftChild(elecDyn, 75);
+
+  newtonMotion.addHardChild(steamEngines);
+  newtonMotion.addHardChild(fluidDyn);
+  newtonMotion.addHardChild(quantMech);
+  newtonMotion.addHardChild(relativity);
+  newtonMotion.addHardChild(seisEng);
+  newtonMotion.addHardChild(prost);
+  newtonMotion.addHardChild(extragalAstro);
+  newtonMotion.addSoftChild(thermoDyn, 20);
+
+  microScope.addHardChild(germTheory);
+
+  planetMotion.addHardChild(extragalAstro);
+
+  steamEngines.addHardChild(thermoDyn);
+
+  waveQuake.addHardChild(seisEng);
+
+  modChem.addHardChild(carbCapt);
+  modChem.addHardChild(photoFilm);
+  modChem.addHardChild(battery);
+  modChem.addHardChild(haberPro);
+  modChem.addHardChild(perTable);
+  modChem.addSoftChild(antibio, 200);
+
+  lightExp.addHardChild(teleGraph);
+  lightExp.addHardChild(semiCond);
+  lightExp.addHardChild(piezoQuartz);
+  lightExp.addHardChild(elecDyn);
+
+  artRefrig.addSoftChild(thermoDyn, 30);
+
+  analEng.addHardChild(elecmagComp);
+
+  fluidDyn.addHardChild(flight);
+  fluidDyn.addHardChild(atmoModel);
+
+  teleGraph.addHardChild(wireComm);
+
+  battery.addSoftChild(elecDyn, 75);
+
+  thermoDyn.addHardChild(statMech);
+  thermoDyn.addHardChild(carbCapt);
+  thermoDyn.addHardChild(haberPro);
+
+  germTheory.addHardChild(antibio);
+  germTheory.addHardChild(epidModel);
+
+  realAnal.addHardChild(gradDesc);
+
+  boolAlg.addSoftChild(elecmagComp, 80);
+
+  semiCond.addHardChild(transistor);
+
+  piezoQuartz.addHardChild(quartzClocks);
+
+  photoFilm.addHardChild(blackholeImg);
+
+  statMech.addSoftChild(quantMech, 50);
+  statMech.addHardChild(nanoTech);
+
+  elecDyn.addHardChild(radiation);
+  elecDyn.addHardChild(wireComm);
+  elecDyn.addHardChild(relativity);
+  elecDyn.addHardChild(transistor);
+  elecDyn.addHardChild(laserMaser);
+
+  perTable.addHardChild(radiation);
+
+  elecmagComp.addHardChild(compNet);
+  elecmagComp.addHardChild(atmoModel);
+  elecmagComp.addSoftChild(gradDesc, 100);
+
+  radiation.addHardChild(medImg);
+  radiation.addHardChild(dna);
+  radiation.addHardChild(quantMech);
+
+  wireComm.addHardChild(satellites);
+  wireComm.addSoftChild(compNet, 500);
+
+  relativity.addHardChild(partColl);
+  relativity.addHardChild(ftlProp);
+  relativity.addHardChild(satellites);
+  relativity.addHardChild(gravCosmo);
+  relativity.addHardChild(blackholeImg);
+
+  extragalAstro.addHardChild(blackholeImg);
+  extragalAstro.addHardChild(gravCosmo);
+
+  quantMech.addHardChild(transistor);
+  quantMech.addHardChild(partColl);
+  quantMech.addHardChild(laserMaser);
+  quantMech.addHardChild(nanoTech);
+
+  gradDesc.addSoftChild(graphPro, 100);
+
+  compNet.addHardChild(blackholeImg);
+  compNet.addSoftChild(epidModel, 100);
+  compNet.addSoftChild(genoSeq, 200);
+
+  transistor.addHardChild(graphPro);
+  transistor.addHardChild(storMed);
+  transistor.addHardChild(gravCosmo);
+  transistor.addHardChild(genoSeq);
+  transistor.addHardChild(uvLith);
+  transistor.addHardChild(epidModel);
+
+  partColl.addSoftChild(graphPro, 100);
+  partColl.addSoftChild(storMed, 150);
+  partColl.addSoftChild(medImg, 150);
+
+  laserMaser.addHardChild(quantDot);
+  laserMaser.addHardChild(storMed);
+  laserMaser.addHardChild(uvLith);
+
+  satellites.addHardChild(aliens);
+
+  dna.addHardChild(genoSeq);
+
+  nanoTech.addHardChild(uvLith);
+
+  atmoModel.addHardChild(carbCapt);
+
+  graphPro.addSoftChild(aiEth, 200);
+
+  medImg.addSoftChild(antiAging, 200);
+
+  genoSeq.addHardChild(antiAging);
+
+  uvLith.addHardChild(uvLith);
+
+  blackholeImg.addSoftChild(ftlProp, 300);
+
+
+
+  const earlyMan = [babyAstro]
+  const ironAge = [pythMath]
+  const ancientGreece = [natPhil, statics]
+  const deadJesus = [zero, inertia, comets]
+  const goldenIslam = [optics, alchemy]
+  const midevalTimes = [gunPowder2, mechClocks]
+  const renaissance = [printPress, empire, natRefig]
+  const enlightenment = [elecGen]
+  const modernDay = [aiEth]
 }
 //#endregion
 
@@ -659,13 +982,25 @@ function updateResourceDisplay() {
 
   resources.science -= 5;
 
+  // Science should not go below 0% or above 100%
+  if (resources.science > 100) {
+    resources.science = 100; }
+
+  if (resources.science < 0) {
+    resources.science = 0; }
+
+  // Happiness should not go below 0.
+  if (resources.happiness < 0) {
+    resources.happiness = 0
+  }
+
   document.getElementById('wealthBar').textContent = Math.round(resources.wealth);
   document.getElementById('happinessBar').textContent = Math.round(resources.happiness);
   document.getElementById('scienceBar').textContent = Math.round(resources.science);
   document.getElementById('gptBar').textContent = resources.gpt;
 
   if (resources.year < 0) {
-    document.getElementById('yearBar').textContent = resources.year + " BCE";
+    document.getElementById('yearBar').textContent = -resources.year + " BCE";
   }
   else {
     document.getElementById('yearBar').textContent = resources.year + " CE";
@@ -683,6 +1018,11 @@ document.addEventListener('DOMContentLoaded', () => {
   
 
   endTurnButton.addEventListener('click', () => {
+    // BEFORE ANYTHING HAPPENS, CHECK IF GOLD WILL BECOME NEGATIVE:
+    if (debtChecker(cardList)) {
+      return;
+    }
+    
     // Update wealth based on gold per turn from the previous turn.
     resources.wealth += resources.gpt;
 
@@ -780,6 +1120,20 @@ document.addEventListener('DOMContentLoaded', () => {
   populateCards(cardList);
 });
 
+
+function debtChecker(cardList) {
+  var predictedCost = 0;
+
+  cardList.forEach(card => {
+    if (card._card.classList.contains('highlighted')) {
+      predictedCost += card.cost;
+    }
+  })
+
+  return resources.wealth - predictedCost < 0;
+}
+
+
 function updateCards(cardList) {
   /**
    * This function will update everything to do with the cards inbetween turns.
@@ -808,7 +1162,12 @@ function updateCards(cardList) {
         cardList.push(hardChild);
       })
 
-      discountCards(card.softChildren);
+      var i = 0;
+      while (i < card.softChildren.length) {
+        var reduction = card.softChildDiscount[i]; 
+        card.softChildren[i].softDiscount(reduction);
+        i++;
+      }
     
       card._card.classList.remove('highlighted');
       card.hide()
@@ -859,7 +1218,7 @@ function moveTime() {
    */
 
   if (resources.year < 0) {
-    resources.year += 500
+    resources.year += 1500
   }
 
   else if (0 <= resources.year && resources.year < 1800) {
@@ -872,8 +1231,4 @@ function moveTime() {
 }
 
 
-// This object completedTech will store whether a tech has been researched, so that we can check it for events.
-let completedTech = {
-  seismoscope: false
-}
 //#endregion
