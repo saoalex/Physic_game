@@ -9,11 +9,32 @@
         
 <body>
 <!--Game title-->
-<h1 id="gameTitle">History of Physics: The Game</h1>
-
 <div id="menuContainer">
+    <h1 id="gameTitle">History of Physics: The Game</h1>
+    <!--<img src="library/backgrounds/start.png" alt="Game Logo" class="menu-image">-->
     <button id="startButton">Start Game</button>
-</div>
+
+    <!-- Add an "About" button -->
+    <button id="about-button">About</button>
+    <!-- The about modal -->
+        <div id="about-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>About this game</h2>
+                <p> 
+                    This game is designed to allow players to explore how society as a whole fosters and facilitates the advancements in physics and science. The educational objectives for this game includes: <br>
+                    1. To explore the vast creations and methodologies that humans have developed through out history.<br>
+                    2. Gain insights on what society has gained from these creations.<br>
+                    3. Understand how public opinions on advancing different physics/science fields affects future developments.<br>
+                    The game is designed to be intuitive and self-explanatory.<br>
+                    For instructions on how to play the game, proceed with the start button.</p>
+            </div>
+        </div>
+        <div class="menu-content">
+        <p>A game by</p>
+        <p>Eric Hellebust, Ayran Prasad, Veyasan Ragulan, Weizheng Wang</p>
+        </div>
+    </div>
 
 <!--Game UI-->
 <div id="gameContainer" style="display: none;">
@@ -22,15 +43,15 @@
     <div id="buildArea">
         <div class="build-buttons">
             <div class="building-option">
-                <button id="build-military">Build Military</button>
+                <button id="build-military">Build Military: <span id="militaryPrice">0</span> gold</button>
                 <img src="library/backgrounds/sign.png" alt="militaryBuilding">
             </div>
             <div class="building-option">
-                <button id="build-circus">Build Circus</button>
+                <button id="build-circus">Build Circus: <span id="circusPrice">0</span> gold</button>
                 <img src="library/backgrounds/sign.png" alt="circusBuilding">
             </div>
             <div class="building-option">
-                <button id="build-school">Build School</button>
+                <button id="build-school">Build School: <span id="schoolPrice">0</span> gold</button>
                 <img src="library/backgrounds/sign.png" alt="schoolBuilding">
             </div>
         </div>
@@ -61,14 +82,18 @@
 
     <!--Division for description-->
     <div id="infoArea">
-        Welcome to "History of Physics: The Game!" (name and game in progress).
+        Instructions:<br>
         In this game you manage the research done by a nondescript civilization from the dawn of humankind to the near future.<br>
 
-        This is still very much a work in progress, and many parts we intended to implement have yet to work. For example, the "science" resource does not do anything yet, but it will eventually impact the cost of new technologies and increase the chances of good events happening.<br>
+        This is a turn based game. For each turn you can buy as much technologies as you want by clicking on the upgrade cards, as long as you have enough gold (Or else the end turn button will be disabled). The purchases will take effect when you end your turn. This area will then display all the descriptions of the upgrades you just purchased.<br>
 
-        You must pay for new technologies with the gold that you have, but there is no limit on how many technologies you may research, or anything stopping you from spending more gold than you have (although this will be fixed).<br>
+        Choose your upgrades wisely, as they will unlock different technologies in the future, providing different impacts on your resources.<br>
 
-        To begin the game, click on one or more of the cards below, and then click the "end turn" button. Your objective is to get as much happiness as possible for your civilization.
+        Starting from the 3rd turn, you will start to encounter random events that will affect your resources. These events are real world demonstration on what obstacles or benefits one may encounter that affects science advancements.<br>
+
+        On your top right is your resource bar. Gold is what you will use to purchase the upgrades, happiness is a general expression on how your society feels about your investments as you progress through the game. Science effects the chances of random events, precisely you will have a higher chance encountering good events with higher science.<br>
+
+        Your objective is to get as much happiness as possible for your civilization. Enjoy!
     </div>
 
     <!--Division for card container-->
