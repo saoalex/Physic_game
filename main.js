@@ -1259,6 +1259,7 @@ const closeButt = document.querySelector('.close-butt');
 
 logButton.addEventListener('click', () => {
   logModal.style.display = 'block';
+  logContent.textContent = "";
   for (let i = 0; i < researchedCards.length; i++ ){
   logContent.textContent += researchedCards[i] + ",    ";
   }
