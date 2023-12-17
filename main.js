@@ -769,12 +769,12 @@ const events = [
   {
     title: "Barbarians attack!",
     description: "Your military has failed to defend your borders against barbarian tribes. Your state is being invaded and your great cities are being sacked! There is chaos on the streets and the barbarians are plundering your treasury. <br> Reduce gold: 5% <br> Reduce happiness: 50%",
-    effect: {wealth: 5, happiness: 50},
-    chance: 12, // This should be 12.
+    effect: {wealth: 40, happiness: 50},
+    chance: 36, // This should be 12.
     MilitaryEvent: "You were attacked by savage barbarians, but your military successfully protected your nation and minimized the losses caused by the attack. <br> Reduce gold: 5% <br> Reduce happiness: 5%",
     MilitaryEffect: {wealth: 5, happiness: 5},
     modifiers: {
-      military: 0.8, // This will multiply the chance of this event happening. 1.2 would mean a 20% increased chance. 
+      military: 0.3, // This will multiply the chance of this event happening. 1.2 would mean a 20% increased chance. 
       circus: 1.0, // Decreases chance by 0% if circus building is constructed
       school: 1.0, // No effect on chance if school building is constructed
     }
@@ -783,22 +783,22 @@ const events = [
     title: "Piracy and Thievery",
     description: "It’s tough being rich. Pirates have attacked your convoy and stolen a great amount of treasure. Just hope it wasn’t the convoy with your greatest new technology! <br>Reduce gold: 8% <br>Reduce your happiness 10%",
     effect: {wealth: 8, happiness: 10},
-    chance: 11,
+    chance: 33,
     MilitaryEvent: "Thieves and cutthroats attempted to ambush your convoy but were thwarted by the talented military platoon that accompanied it, protecting your trade goods and gold.",
     MilitaryEffect: {},
     modifiers: {
-      military: 0.8 // This will multiply the chance of this event happening. 1.2 would mean a 20% increased chance.
+      military: 0.3 // This will multiply the chance of this event happening. 1.2 would mean a 20% increased chance.
     }
   },
   {
     title: "War with neighbouring states",
     description: "You have been dragged into a brutal war with your neighbours that leaves your society devastated and treasury depleted. Your peaceful focus on technological development is thrown into chaos. <br> Reduce gold: 30% <br> Reduce happiness: 40%",
     effect: {wealth: 30, happiness: 40},
-    chance: 4,
+    chance: 20,
     MilitaryEvent: "A neighboring state declared war on you, but thanks to your military might and superior technology, you were able to fend off their attacks. An economic boom has taken place in your civilization, and new technological advancements have been made in the endeavor for more powerful tools of war, for better or for worse... <br> Increase gold: 30% <br>",
     MilitaryEffect: {wealth: -30},
     modifiers: {
-      military: 1 // This will multiply the chance of this event happening. 1.2 would mean a 20% increased chance.
+      military: 0.2 // This will multiply the chance of this event happening. 1.2 would mean a 20% increased chance.
     }
   },
   {
@@ -1084,7 +1084,7 @@ function updateResourceDisplay() {
    * This function updates the resources display on the website.
    */
   if (!resources.buildings['school']) {
-    resources.science -= 5;
+    resources.science -= 10;
   }
   if (resources.buildings['circus']) {
     resources.happiness += 10
@@ -1457,7 +1457,7 @@ function moveTime() {
   }
 
   else {
-    resources.year += 5
+    resources.year += 10
   }
 
 
