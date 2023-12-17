@@ -1266,14 +1266,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 function debtChecker(cardList) {
-  var predictedCost = 0;
+  let predictedCost = 0;
+  const processedCards = new Set();
 
   cardList.forEach(card => {
     if (card._card.classList.contains('highlighted')) {
-      predictedCost += card.cost;
+          // Check if the card has not been processed already
+          if (!processedCards.has(card._card)) {
+              predictedCost += card.cost;
+              processedCards.add(card._card); // Add the card to the set of processed cards
+          }
     }
   })
-
+  document.getElementById("barbarianBar").textContent = predictedCost;
   return resources.wealth - predictedCost < 0;
 }
 
