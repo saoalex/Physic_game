@@ -1185,6 +1185,8 @@ function debtChecker(cardList) {
   return resources.wealth - predictedCost < 0;
 }
 
+// This variable can be used to check what cards have been researched based on their title name. The array should only contain strings.
+var researchedCards = [];
 
 function updateCards(cardList) {
   /**
@@ -1222,6 +1224,7 @@ function updateCards(cardList) {
       }
     
       card._card.classList.remove('highlighted');
+      researchedCards.push(card.name);
       card.hide()
     }
 
