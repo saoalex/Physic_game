@@ -836,6 +836,66 @@ const events = [
     description: "You have vast stores of crops, much more than what is necessary to feed your people at the moment. This attracts hungry stragglers, eager to bow to your rule for a morsel of food, and fellow leaders of civilizations, eager to buy crops from you to feed their people. <br>Increase gold: 35% <br>Increase happiness: 45%",
     effect: {wealth: -35, happiness: -45},
     chance: 10
+  },
+  {
+    title: "Mass Urbanisation",
+    description: "Your people are moving in droves from the country farms to your burgeoning cities in search of new opportunities. Existing urban problems become greater challenges but the increased productivity is worth it. <br>Increase gold: 20% <br>Decrease happiness: 20%",
+    effect: {wealth: -20, happiness: 20},
+    chance: 10,
+    isGoodEvent: true
+  },
+  {
+    title: "Luddite riots",
+    description: "Some people don't like changes. The future is now old man! <br>Reduce happiness: 8%",
+    effect: {happiness: 8},
+    chance: 10,
+    isGoodEvent: false
+  },
+  {
+    title: "Political Turbulance",
+    description: "There is general unrest in your civilization. People are more divided than ever, and you are too distracted by the turmoil to focus on science. <br>Reduce happiness: 10%",
+    effect: {happiness: 10},
+    chance: 10,
+    isGoodEvent: false
+  },
+  {
+    title: "Hackers(unlocked by computer networks)",
+    description:"Welcome to the cyber age! Hackers have infiltrated your computer systems and compromised some of your most valuable secrets. This is annoying but manageable, as long as they did not encrypt the files describing your latest and greatest invention…<br> Reduce gold: 10% <br>Reduce happiness: 5%",
+    effect:{wealth: 10, happiness: 5},
+    chance: 10,
+    isGoodEvent: false
+  },
+  {
+    title: "Technological increase in production (requires Steam Engine)",
+    description:"The advances in technology have compounded to truly transform the way your economy works. The application of new machines and methods is causing production to boom like never before. More, More, More!<br>Increase gold: 20%<br>Increase happiness: 20%",
+    effect:{wealth: -20, happiness:-20},
+    chance: 10,
+    isGoodEvent: true
+  },
+  {
+    title: "Increase in private funding (1800 CE - 2023 CE)",
+    description: "Private capital is flooding the market. People are quickly jumping on board, investing money in all kinds of ventures, including science, which they hope will have present returns.<br>Increase science: 10% ",
+    effect:{science: -10},
+    chance: 10,
+    isGoodEvent:true
+  },
+  {
+    title: "Antiscience act",
+    description: "Your research has gained the ire of certain groups. They are accusing it of being demonic and are trying to force you to discontinue your program.<br>Reduce happiness: 10% <br>Reduce science: 10%",
+    effect:{happiness: 10, science: 15},
+    chance: 10,
+    isGoodEvent: false
+  },
+  {
+    title: "New government system",
+    description: "50/50 chance for Political Turbulence or Increase in State Funding next turn",
+    chance:10,
+    isGoodEvent: true
+  },
+  {
+    title: "State censorship",
+    description: "The powers that be are concerned with preserving the existing order, with them at the top. These new research directions threaten that status quo, so they’ve shut it down, at least to the extent they can. <br>One research option is shut down for the turn/one tree shut down for multiple turns/one technology devolved.",
+    chance: 10
   }
 ];
 
@@ -853,10 +913,10 @@ function calculateWeightedChances() {
               weightedChance *= event.modifiers[buildingType];
           }
       }
-      /**if (resources.science > scienceThreshhold && event.isGoodEvent) {
+      if (resources.science > scienceThreshhold && event.isGoodEvent) {
         // If player's science is above the threshold and it's a good event, increase chance
         weightedChance *= 1.2; // Increase chance by 20%
-      }*/
+      }
       changedChances.push({ event, weightedChance });
     }
     return changedChances
@@ -1053,6 +1113,28 @@ document.addEventListener('DOMContentLoaded', (event) => {
     gameContainer.style.display = 'block';
   });
 
+});
+
+// Intialization code for about button
+const aboutModal = document.getElementById('about-modal');
+const aboutButton = document.getElementById('about-button');
+const closeButton = document.querySelector('.close');
+
+// Open the modal when the "About" button is clicked
+aboutButton.addEventListener('click', () => {
+    aboutModal.style.display = 'block';
+});
+
+// Close the modal when the close button is clicked
+closeButton.addEventListener('click', () => {
+    aboutModal.style.display = 'none';
+});
+
+// Close the modal when clicking outside the modal content
+window.addEventListener('click', (event) => {
+    if (event.target === aboutModal) {
+        aboutModal.style.display = 'none';
+    }
 });
 
 // Intialization code for restart button
