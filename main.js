@@ -1198,11 +1198,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
   const startButton = document.getElementById('startButton');
   const gameContainer = document.getElementById('gameContainer');
   const menuContainer = document.getElementById('menuContainer');
+  const startSound = document.getElementById('startSound');
 
   startButton.addEventListener('click', () => {
     // Hide the menu and show the game container
     menuContainer.style.display = 'none';
     gameContainer.style.display = 'block';
+    startSound.play();
   });
 
 });
