@@ -144,7 +144,7 @@ body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: center;
+    justify-content: left;
     text-align: center;
     position: relative;
     overflow-x: auto;
