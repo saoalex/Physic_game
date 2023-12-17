@@ -6,32 +6,100 @@
     margin-bottom: 40px;
 }
 
-
+body {
+    background-image: url('library/backgrounds/start3.png'); /* Replace with your image URL */
+    background-size: cover; /* Cover the entire viewport with the background image */
+    background-position: center; /* Center the background image */
+    background-repeat: no-repeat; /* Prevent image repetition */
+}
 /* Style of:
     menu window
     buttons in menu including:
         'start'
 */
 #menuContainer {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 80vh; /* Make the menu cover the full viewport height */
-    width: 30vw;
+    text-align: center;
+    height: 90vh; /* Make the menu cover the full viewport height */
+    width: 40vw;
     margin: auto;
-    background-color: #dedcd9; /* Light background for the menu */
+
+}
+  
+/* Style the menu buttons */
+.menu-image {
+    max-width: 300px;
+    max-height: 200px;
+    height: auto;
+    margin-bottom: 30px;
 }
   
 #startButton {
     padding: 10px;
-    height: 60px;
-    width: 180px;
+    height: 40px;
+    width: 160px;
     font-size: 1.5em;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+#about-button {
+    padding: 10px;
+    height: 40px;
+    width: 160px;
+    font-size: 1.5em;
+    cursor: pointer;
+    margin-bottom: 30px;
+}
+
+/* Style "A game by:" */
+.menu-content p:first-child {
+    margin-bottom: 5px; /* Smaller margin between "A game by:" and the authors */
+    font-size: 20px;
+}
+
+/* Style the authors */
+.menu-content p:last-child {
+    margin-top: 5px; /* Smaller margin between the authors and the "About" button */
+    font-size: 20px;
+}
+
+/* Style the about display */
+.modal {
+    display: none; /* Hide the modal by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background overlay */
+    z-index: 1;
+}
+
+/* Style the about modal content */
+.modal-content {
+    background-color: #fff;
+    margin: 20% auto;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+    text-align: left;
+}
+
+/* Style the close button */
+.close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 40px;
     cursor: pointer;
 }
 
 
-
+/* Style of game display */
 #gameContainer {
     font-family: Arial, sans-serif;
     max-width: 1224px; /* Limit the game area width */
@@ -39,6 +107,7 @@
     margin: auto;
     text-align: center;
     border-radius: 10px;
+    z-index: 0;
 }
 
 
@@ -65,6 +134,7 @@
     margin-right: 5px;
     overflow-y: auto;
     line-height: 1.5;
+    background-color: #fff;
 }
 
 #resourceArea {
@@ -77,6 +147,7 @@
     align-items: center;
     justify-content: center;
     position: relative;
+    background-color: #fff;
 }
 
 .columns {
@@ -115,6 +186,7 @@
     font-size: 25px;
     line-height: 1.8;
     overflow-y: auto;
+    background-color: #fff;
 }
 
 
@@ -135,10 +207,11 @@
     position: absolute;
     height: 60px;
     width: 180px;
-    right: -190px;
-    bottom: 372.7px;
+    left: -190px;
+    bottom: 302.7px;
     font-size: 20px;
 }
+
 
 
 /* Style for everything related to cards:
@@ -155,6 +228,7 @@
     border: 1px solid #000;
     display: flex;
     justify-content: start;
+    background-color: #fff;
   }
   
 .card {
