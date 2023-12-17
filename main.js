@@ -1236,6 +1236,24 @@ document.addEventListener('DOMContentLoaded', () => {
     location.reload(); // Reloads the current page
   });
 });
+
+// Initialize log button
+const logModal = document.getElementById("log-modal");
+const logButton = document.getElementById("logButton");
+const logContent = document.getElementById("log-text");
+const closeButt = document.querySelector('.close-butt');
+
+logButton.addEventListener('click', () => {
+  logModal.style.display = 'block';
+  logContent.textContent = researchedCards;
+  
+});
+
+// Close the modal when the close button is clicked
+closeButt.addEventListener('click', () => {
+  logModal.style.display = 'none';
+});
+
 //#endregion
 
 //#region Initialize the Cards
