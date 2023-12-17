@@ -8,10 +8,12 @@
 
 body {
     background-image: url('library/backgrounds/start3.png'); /* Replace with your image URL */
-    background-size: cover; /* Cover the entire viewport with the background image */
+    background-size: auto; /* Cover the entire viewport with the background image */
     background-position: center; /* Center the background image */
     background-repeat: no-repeat; /* Prevent image repetition */
+    background-attachment: scroll;
 }
+
 /* Style of:
     menu window
     buttons in menu including:
@@ -23,20 +25,13 @@ body {
     justify-content: center;
     align-items: center;
     text-align: center;
-    height: 90vh; /* Make the menu cover the full viewport height */
-    width: 40vw;
+    height: 900px; /* Make the menu cover the full viewport height */
+    width: 600px;
     margin: auto;
 
 }
   
 /* Style the menu buttons */
-.menu-image {
-    max-width: 300px;
-    max-height: 200px;
-    height: auto;
-    margin-bottom: 30px;
-}
-  
 #startButton {
     padding: 10px;
     height: 40px;
@@ -87,6 +82,7 @@ body {
     border-radius: 5px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
     text-align: left;
+    overflow-y: auto;
 }
 
 /* Style the close button */
@@ -108,6 +104,7 @@ body {
     text-align: center;
     border-radius: 10px;
     z-index: 0;
+    position:relative;
 }
 
 
@@ -137,6 +134,8 @@ body {
     background-color: #fff;
 }
 
+
+
 #resourceArea {
     box-sizing: border-box;
     height: 100%;
@@ -145,8 +144,10 @@ body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: center;
+    justify-content: left;
+    text-align: center;
     position: relative;
+    overflow-x: auto;
     background-color: #fff;
 }
 
@@ -207,8 +208,8 @@ body {
     position: absolute;
     height: 60px;
     width: 180px;
-    left: -190px;
-    bottom: 302.7px;
+    right: -190px;
+    bottom: 1.7px;
     font-size: 20px;
 }
 
@@ -329,16 +330,14 @@ body {
 
 /* Style the function area */
 #buildArea {
-    position: absolute;
-    top: 135px;
-    left: 120px;
+    position:absolute;
+    top: 25px;
+    right: -190px;
     padding: 20px;
     width: 200px; /* Adjust the width as needed */
-    min-height: 400px; /* Adjust the height as needed */
     box-sizing: border-box;
     display: flex;
     flex-direction: column; /* Arrange buttons and images vertically */
-    align-items: flex-start; /* Align buttons to the left */
 }
 
 /* Style the building buttons */
