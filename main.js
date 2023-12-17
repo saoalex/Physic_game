@@ -382,7 +382,7 @@ function initializeTechTree(stoneTools, selectBreed, earlyAstro) {
   earlyAstro.addHardChild(planetAstro);
   earlyAstro.addSoftChild(pythMath, 5);
   earlyAstro.addSoftChild(babyAstro, 8);
-  earlyAstro.addSoftChild(stoneHenge, 270);
+  earlyAstro.addSoftChild(stoneHenge, 50);
   earlyAstro.addSoftChild(sunDials, 7);
   earlyAstro.addSoftChild(comet, 10);
   
@@ -412,11 +412,13 @@ function initializeTechTree(stoneTools, selectBreed, earlyAstro) {
   earlyMed.addHardChild(anaStud);
 
   natPhil.addHardChild(aliens);
+  natPhil.addHardChild(expResearch);
   natPhil.addSoftChild(zero, 10);
   natPhil.addSoftChild(inertia, 10);
   natPhil.addSoftChild(optics, 10);
   natPhil.addSoftChild(alchemy, 10);
   natPhil.addSoftChild(anaStud, 10);
+  
 
   statics.addHardChild(earlyMech);
 
