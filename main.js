@@ -678,6 +678,7 @@ let resources = {
 let turnCount = 1; // Initialize user's turn
 
 
+
 //#region Code for buildings
 // Select the building buttons and the corresponding images
 const buildMilitaryButton = document.getElementById('build-military');
@@ -693,11 +694,11 @@ const buildingCosts = {
   school: 100,
 };
 
-// Define maintenance costs for each building type
-const maintenanceCosts = {
-  military: 20,
-  circus: 30,
-  school: 40,
+// Define the current remaining duration for each building type
+let buildingDuration = {
+  military: 0,
+  circus: 0,
+  school: 0,
 };
 
 // Function to handle building construction when a button is clicked
@@ -710,8 +711,13 @@ sPrice.textContent = buildingCosts.school
 function buildBuilding(buildingType) {
   if (!resources.buildings[buildingType]) {
       // Deduct the gold cost and mark the building as constructed
+      if (resources.wealth - buildingCosts[buildingType] < 0) {
+        return;
+      }
+
       resources.wealth -= buildingCosts[buildingType];
       resources.buildings[buildingType] = true;
+      buildingDuration[buildingType] = 5;
 
       //Reflect the changes in the resource bar
       document.getElementById('wealthBar').textContent = Math.round(resources.wealth);
@@ -721,20 +727,28 @@ function buildBuilding(buildingType) {
   }
 }
 
+
+
 // Add click event listeners to the building buttons
 buildMilitaryButton.addEventListener('click', () => {
-    militaryImage.src = 'library/backgrounds/shield.png'; // Set the image source for military building
     buildBuilding('military')
+    if (resources.buildings['military']) {
+      militaryImage.src = 'library/backgrounds/shield.png'; // Set the image source for military building
+    }
 });
 
 buildCircusButton.addEventListener('click', () => {
+  buildBuilding('circus')
+  if (resources.buildings['circus']) {
     circusImage.src = 'library/backgrounds/circus.png'; // Set the image source for circus building
-    buildBuilding('circus')
+  }
 });
 
 buildSchoolButton.addEventListener('click', () => {
+  buildBuilding('school')
+  if (resources.buildings['school']) {
     schoolImage.src = 'library/backgrounds/book.png'; // Set the image source for school building
-    buildBuilding('school')
+  }
 });
 
 //#endregion
@@ -745,11 +759,12 @@ const events = [
     title: "Barbarians attack!",
     description: "Your military has failed to defend your borders against barbarian tribes. Your state is being invaded and your great cities are being sacked! There is chaos on the streets and the barbarians are plundering your treasury. <br> Reduce gold: 5% <br> Reduce happiness: 50%",
     effect: {wealth: 5, happiness: 50},
-    chance: 12,
-    isGoodEvent: true,
+    chance: 12, // This should be 12.
+    MilitaryEvent: "You were attacked by savage barbarians, but your military successfully protected your nation and minimized the losses caused by the attack. <br> Reduce gold: 5% <br> Reduce happiness: 5%",
+    MilitaryEffect: {wealth: 5, happiness: 5},
     modifiers: {
-      military: 0, // 
-      circus: 1.0, // Decreases chance by 20% if circus building is constructed
+      military: 0.8, // This will multiply the chance of this event happening. 1.2 would mean a 20% increased chance. 
+      circus: 1.0, // Decreases chance by 0% if circus building is constructed
       school: 1.0, // No effect on chance if school building is constructed
     }
   },
@@ -757,13 +772,23 @@ const events = [
     title: "Piracy and Thievery",
     description: "It’s tough being rich. Pirates have attacked your convoy and stolen a great amount of treasure. Just hope it wasn’t the convoy with your greatest new technology! <br>Reduce gold: 8% <br>Reduce your happiness 10%",
     effect: {wealth: 8, happiness: 10},
-    chance:11
+    chance: 11,
+    MilitaryEvent: "Thieves and cutthroats attempted to ambush your convoy but were thwarted by the talented military platoon that accompanied it, protecting your trade goods and gold.",
+    MilitaryEffect: {},
+    modifiers: {
+      military: 0.8 // This will multiply the chance of this event happening. 1.2 would mean a 20% increased chance.
+    }
   },
   {
     title: "War with neighbouring states",
     description: "You have been dragged into a brutal war with your neighbours that leaves your society devastated and treasury depleted. Your peaceful focus on technological development is thrown into chaos. <br> Reduce gold: 30% <br> Reduce happiness: 40%",
     effect: {wealth: 30, happiness: 40},
-    chance: 4
+    chance: 4,
+    MilitaryEvent: "A neighboring state declared war on you, but thanks to your military might and superior technology, you were able to fend off their attacks. An economic boom has taken place in your civilization, and new technological advancements have been made in the endeavor for more powerful tools of war, for better or for worse... <br> Increase gold: 30% <br>",
+    MilitaryEffect: {wealth: -30},
+    modifiers: {
+      military: 1 // This will multiply the chance of this event happening. 1.2 would mean a 20% increased chance.
+    }
   },
   {
     title:"Famine",
@@ -817,19 +842,22 @@ const events = [
     title:"New technology from the foreign lands",
     description:"Your traders discovered a new technology used in a distant land. They have brought it back for you to study and apply in your civilization. <br>Increase happiness: 10% <br>Unlocks new technology for free",
     effect: {happiness: -10},
-    chance: 2.4
+    chance: 2.4,
+    ScienceEvent: true
   },
   {
     title:"Science prophet born",
     description: "Some people are just born different. Such is the case with this prodigious child born in your capital. At the age of six, she is impressing your scholars. Her gifts will be numerous. <br>Increase happiness: 15% <br>Increase science: 15%",
     effect: {happiness: -15, science:-15},
-    chance: 1.4
+    chance: 1.4,
+    ScienceEvent: true
   },
   {
     title: "Increase of state funding",
     description: "The state recognizes the importance of basic research and opens its wallet to the desires of scientists and scholars. Others might feel neglected, though. <br>Increase gold: 30% <br>Increase science: 25% <br>Reduce happiness: 15%",
     effect: {wealth: -30, happiness: 15, science: -25},
-    chance: 5
+    chance: 5,
+    ScienceEvent: true
   },
   {
     title: "Agriculture surplus",
@@ -848,44 +876,48 @@ const events = [
     title: "Luddite riots",
     description: "Some people don't like changes. The future is now old man! <br>Reduce happiness: 8%",
     effect: {happiness: 8},
-    chance: 10,
-    isGoodEvent: false
+    chance: 3,
+    isGoodEvent: true
   },
   {
     title: "Political Turbulance",
     description: "There is general unrest in your civilization. People are more divided than ever, and you are too distracted by the turmoil to focus on science. <br>Reduce happiness: 10%",
     effect: {happiness: 10},
-    chance: 10,
+    chance: 7,
     isGoodEvent: false
   },
   {
-    title: "Hackers(unlocked by computer networks)",
+    title: "Hackers",
     description:"Welcome to the cyber age! Hackers have infiltrated your computer systems and compromised some of your most valuable secrets. This is annoying but manageable, as long as they did not encrypt the files describing your latest and greatest invention…<br> Reduce gold: 10% <br>Reduce happiness: 5%",
     effect:{wealth: 10, happiness: 5},
-    chance: 10,
-    isGoodEvent: false
+    chance: 20,
+    isGoodEvent: false,
+    techCondition: 'Computer Networks' // This event should only happen once Computer Networks are researched.
   },
   {
-    title: "Technological increase in production (requires Steam Engine)",
+    title: "Technological increase in production",
     description:"The advances in technology have compounded to truly transform the way your economy works. The application of new machines and methods is causing production to boom like never before. More, More, More!<br>Increase gold: 20%<br>Increase happiness: 20%",
     effect:{wealth: -20, happiness:-20},
     chance: 10,
-    isGoodEvent: true
+    isGoodEvent: true,
+    techCondition: 'Steam Engines'
   },
   {
-    title: "Increase in private funding (1800 CE - 2023 CE)",
+    title: "Increase in private funding",
     description: "Private capital is flooding the market. People are quickly jumping on board, investing money in all kinds of ventures, including science, which they hope will have present returns.<br>Increase science: 10% ",
     effect:{science: -10},
     chance: 10,
-    isGoodEvent:true
+    isGoodEvent:true,
+    timeCondition: 1800 // This event can only happen after the year 1800 CE.
   },
   {
     title: "Antiscience act",
     description: "Your research has gained the ire of certain groups. They are accusing it of being demonic and are trying to force you to discontinue your program.<br>Reduce happiness: 10% <br>Reduce science: 10%",
     effect:{happiness: 10, science: 15},
-    chance: 10,
+    chance: 3,
     isGoodEvent: false
   },
+  /*
   {
     title: "New government system",
     description: "50/50 chance for Political Turbulence or Increase in State Funding next turn",
@@ -897,6 +929,7 @@ const events = [
     description: "The powers that be are concerned with preserving the existing order, with them at the top. These new research directions threaten that status quo, so they’ve shut it down, at least to the extent they can. <br>One research option is shut down for the turn/one tree shut down for multiple turns/one technology devolved.",
     chance: 10
   }
+  */
 ];
 
 const noEventChance = 0.1; // A 10% chance that no events will trigger
@@ -913,10 +946,23 @@ function calculateWeightedChances() {
               weightedChance *= event.modifiers[buildingType];
           }
       }
-      if (resources.science > scienceThreshhold && event.isGoodEvent) {
+      if (resources.science > scienceThreshhold && event.ScienceEvent) {
         // If player's science is above the threshold and it's a good event, increase chance
-        weightedChance *= 1.2; // Increase chance by 20%
+        weightedChance *= 1.5; // Increase chance by 50%
       }
+
+      if (event.techCondition) {
+        if (!researchedCards.includes(event.techCondition)) {
+          weightedChance *= 0;
+        }
+      }
+
+      if (event.timeCondition) {
+        if (event.timeCondition > resources.year) {
+          weightedChance *= 0;
+        }
+      }
+
       changedChances.push({ event, weightedChance });
     }
     return changedChances
@@ -959,12 +1005,19 @@ function tryTriggerEvent() {
                   break;
             }
         }
+    
     triggerEvent(selectedEvent)
   }
 }
 
 function triggerEvent(event) {
   // Apply the negative percentage effects on resources
+
+  if (event.MilitaryEvent) {
+    triggerMilitaryEvent(event);
+    return;
+  } 
+
   for (const resource in event.effect) {
     if (resources.hasOwnProperty(resource)) {
       const decreaseAmount = resources[resource] * (event.effect[resource] / 100);
@@ -975,21 +1028,36 @@ function triggerEvent(event) {
   // Update UI or other game elements based on new resource values
   //updateResourceDisplay();
   showEventModal(event);
+  }
+
+
+function triggerMilitaryEvent(event) {
+  const randomNumber = Math.random() * 100;
+
+  if (!resources.buildings['military'] || randomNumber < 49) {
+    for (const resource in event.effect) {
+      if (resources.hasOwnProperty(resource)) {
+        const decreaseAmount = resources[resource] * (event.effect[resource] / 100);
+        resources[resource] -= decreaseAmount;
+      }
+    }
+    showEventModal(event);
+    return;
+  }
+  
+  for (const resource in event.MilitaryEffect) {
+    if (resources.hasOwnProperty(resource)) {
+      const decreaseAmount = resources[resource] * (event.effect[resource] / 100);
+      resources[resource] -= decreaseAmount;
+    }
+  }
+  showEventModal(event, event.MilitaryEvent);
 }
 
-/**function tryTriggerEvent() {
-  const triggerChance = 0.6; // 60% chance to trigger an event
 
-  if (Math.random() < triggerChance) {
-    // Trigger a random event
-    const randomEvent = events[Math.floor(Math.random() * events.length)];
-    triggerEvent(randomEvent);
-  }
-}*/
-
-function showEventModal(event) {
+function showEventModal(event, description = event.description) {
   document.getElementById('event-title').innerHTML = event.title;
-  document.getElementById('event-description').innerHTML = event.description;
+  document.getElementById('event-description').innerHTML = description;
 
   const modal = document.getElementById('event-modal');
   modal.style.display = 'block';
@@ -1004,8 +1072,13 @@ function updateResourceDisplay() {
   /**
    * This function updates the resources display on the website.
    */
-
-  resources.science -= 5;
+  if (!resources.buildings['school']) {
+    resources.science -= 5;
+  }
+  if (resources.buildings['circus']) {
+    resources.happiness += 10
+  }
+  
 
   // Science should not go below 0% or above 100%
   if (resources.science > 100) {
@@ -1056,11 +1129,19 @@ document.addEventListener('DOMContentLoaded', () => {
     turnCount ++;
     updateTurn();
 
-    // Update gold based on buildings maintenance cost
+    // Update the duration of active buildings, and cancel them if they have no remaining duration.
     for (const buildingType in resources.buildings) {
       if (resources.buildings[buildingType]) {
-          resources.wealth -= maintenanceCosts[buildingType];
-          document.getElementById('wealthBar').textContent = Math.round(resources.wealth);
+          //resources.wealth -= maintenanceCosts[buildingType];
+          //document.getElementById('wealthBar').textContent = Math.round(resources.wealth);
+          buildingDuration[buildingType] -= 1;
+          
+          if (buildingDuration[buildingType] <= 0) {
+            // turn the building to false, and reactivate the button.
+            resources.buildings[buildingType] = false;
+
+            document.getElementById(`build-${buildingType}`).disabled = false;
+          }
       }
   }
 
@@ -1245,6 +1326,33 @@ function updateDescriptions(descriptionList) {
   const descriptionArea = document.getElementById('infoArea');
 
   descriptionArea.innerHTML = '';
+
+  // This gives a notification that a building is in effect.
+  if (resources.buildings['military']) {
+    const paragraph = document.createElement('p');
+
+    paragraph.textContent = 'Your military is vigilantly defending your borders and maintaining peace in your cities.';
+
+    descriptionArea.appendChild(paragraph);
+  }
+
+  if (resources.buildings['circus']) {
+    const paragraph = document.createElement('p');
+
+    paragraph.textContent = 'Your circus is putting on shows across your lands, lightening your people\'s moods and bringing laughter to their lives. You gain 10 happiness.';
+
+    descriptionArea.appendChild(paragraph);
+  }
+
+  if (resources.buildings['school']) {
+    const paragraph = document.createElement('p');
+
+    paragraph.textContent = 'The children taught in your schools will keep your citizens well informed and inspired to make new discoveries in the world. Your science will not decrease this turn.';
+
+    descriptionArea.appendChild(paragraph);
+  }
+
+
 
   if (descriptionList.length == 0) {
     const paragraph = document.createElement('p');
