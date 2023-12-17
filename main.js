@@ -258,7 +258,7 @@ function initializeTechTree(stoneTools, selectBreed, earlyAstro) {
   const urbanTech = new techCard('Urban Technology', 15, 'You create the earliest civilizations, in the forms of tribes and villages as people have more resources.', 12, 10, 0);
   const irriDike = new techCard('Irrigation and Dikes', 24, 'Your civilization finds its home around a river valley. Its flooding provides much needed water for agriculture but threatens your society, so you invest in sophisticated water control systems for irrigation and flood control. These vastly improve quality of life.', 30, 20, 0);
   const babyAstro = new techCard('Babylonian Astronomy', 22, 'Building on early observations, you catalog the stars with a base-60 numeral system and apply basic mathematics to make predictions and discover a cycle of Lunar Eclipses. You become the most advanced astronomers of your time.', 3, 15, 0);
-  const stoneHenge = new techCard('Stonehenge', 300, 'Yay you put a bunch of rocks in a circle! Oh and you summoned aliens to earth', 0, 1, 1);
+  const stoneHenge = new techCard('Stonehenge', 300, 'Yay you put a bunch of rocks in a circle! Oh and you summoned aliens to earth', 0, 40, 50);
   const sunDials = new techCard('Sundials', 15, 'You build the earliest timekeeping device, which indicates the time by the shadow of the dial based on the position of the Sun. People work more efficiently knowing the time.', 2, 0, 0);
   const pythMath = new techCard('Pythagorean Math', 45, 'The Pythagorean school of mathematics emerges. Your scholars explore the nature of numbers and their spirituality. They define the platonic solids and posit early geometric theorems. Although superstitious, they share their philosophy and are the finest mathematicians of their day.', 2, -5, 7);
   const ironMetal = new techCard('Iron Metallurgy', 45, 'Your civilization discovers iron ores and gains the ability to process them, giving your people access to a material stronger than stones.', 5, 0, 0);
@@ -372,6 +372,7 @@ function initializeTechTree(stoneTools, selectBreed, earlyAstro) {
   stoneTools.addHardChild(irriDike);
   stoneTools.addHardChild(stoneHenge);
   stoneTools.addHardChild(sunDials);
+  stoneTools.addHardChild(ironMetal);
   
   selectBreed.addHardChild(earlyAgri);
   selectBreed.addSoftChild(irriDike, 4);
@@ -718,9 +719,12 @@ function buildBuilding(buildingType) {
       resources.wealth -= buildingCosts[buildingType];
       resources.buildings[buildingType] = true;
       buildingDuration[buildingType] = 5;
+      resources.wealth = Math.round(resources.wealth)
+
+
 
       //Reflect the changes in the resource bar
-      document.getElementById('wealthBar').textContent = Math.round(resources.wealth);
+      document.getElementById('wealthBar').textContent = resources.wealth;
 
       // Disable the button after construction
       document.getElementById(`build-${buildingType}`).disabled = true;
@@ -932,7 +936,7 @@ const events = [
   */
 ];
 
-const noEventChance = 0.1; // A 10% chance that no events will trigger
+const noEventChance = 0.1; // A 10% chance that no events will trigger.
 const scienceThreshhold = 50; // Having above 50% science yields more good events.
 
 // Function to calculate the weighted chance of each event based on modifiers
@@ -996,7 +1000,7 @@ function tryTriggerEvent() {
     let selectedEvent = null;
     let cumulativeWeight = 0;
     document.getElementById("testBar").textContent = eventRandomValue;
-    document.getElementById("barbarianBar").textContent = finalChances[0].weightedChance;
+    document.getElementById("barbarianBar").textContent = researchedCards.length;
 
     for (let i=0; i < finalChances.length; i++) {
         cumulativeWeight += finalChances[i].weightedChance;
@@ -1034,7 +1038,7 @@ function triggerEvent(event) {
 function triggerMilitaryEvent(event) {
   const randomNumber = Math.random() * 100;
 
-  if (!resources.buildings['military'] || randomNumber < 49) {
+  if (!resources.buildings['military'] || randomNumber < 74) {
     for (const resource in event.effect) {
       if (resources.hasOwnProperty(resource)) {
         const decreaseAmount = resources[resource] * (event.effect[resource] / 100);
@@ -1145,13 +1149,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
   }
 
+    // card populate and get card descriptions.
+    const newDescriptions = updateCards(cardList);
+
     // Trigger event only when the player gets to round 3
     if (turnCount > 3) {
     tryTriggerEvent()
     }
-
-    // card populate and get card descriptions.
-    const newDescriptions = updateCards(cardList);
 
     // Display the descriptions on the website infoArea.
     updateDescriptions(newDescriptions);
