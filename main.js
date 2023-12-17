@@ -1132,6 +1132,18 @@ document.addEventListener('DOMContentLoaded', () => {
       alert("You do not have enough gold!")
       return;
     }
+
+    // Endgame function
+    const time = resources.year;
+    if (time >= 2050){
+      const endModal = document.getElementById('end-modal');
+      const refresh = document.getElementById('end-event');
+      endModal.style.display = 'block';
+      refresh.addEventListener('click', () => {
+        location.reload(); // Reloads the current page
+      });
+      return;
+    }
     
     // Update wealth based on gold per turn from the previous turn.
     resources.wealth += resources.gpt;
@@ -1247,8 +1259,9 @@ const closeButt = document.querySelector('.close-butt');
 
 logButton.addEventListener('click', () => {
   logModal.style.display = 'block';
-  logContent.textContent = researchedCards;
-  
+  for (let i = 0; i < researchedCards.length; i++ ){
+  logContent.textContent += researchedCards[i] + ",    ";
+  }
 });
 
 // Close the modal when the close button is clicked
