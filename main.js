@@ -847,10 +847,10 @@ function calculateWeightedChances() {
               weightedChance *= event.modifiers[buildingType];
           }
       }
-      /**if (resources.science > scienceThreshhold && event.isGoodEvent) {
+      if (resources.science > scienceThreshhold && event.isGoodEvent) {
         // If player's science is above the threshold and it's a good event, increase chance
         weightedChance *= 1.2; // Increase chance by 20%
-      }*/
+      }
       changedChances.push({ event, weightedChance });
     }
     return changedChances
@@ -1096,6 +1096,8 @@ function debtChecker(cardList) {
   return resources.wealth - predictedCost < 0;
 }
 
+// This variable can be used to check what cards have been researched based on their title name. The array should only contain strings.
+var researchedCards = [];
 
 function updateCards(cardList) {
   /**
@@ -1133,6 +1135,7 @@ function updateCards(cardList) {
       }
     
       card._card.classList.remove('highlighted');
+      researchedCards.push(card.name);
       card.hide()
     }
 
