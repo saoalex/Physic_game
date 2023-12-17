@@ -439,6 +439,8 @@ function initializeTechTree(stoneTools, selectBreed, earlyAstro) {
   inertia.addSoftChild(earlyMech, 65);
   inertia.addSoftChild(galileoExp, 10);
 
+  zero.addHardChild(algebra);
+
   algebra.addHardChild(madApprox);
   algebra.addHardChild(comVar);
   algebra.addHardChild(mapProj);
@@ -486,7 +488,9 @@ function initializeTechTree(stoneTools, selectBreed, earlyAstro) {
   empire.addHardChild(lightExp);
   empire.addHardChild(artRefrig);
   empire.addHardChild(germTheory);
+  empire.addHardChild(vax);
   empire.addSoftChild(microScope, 40);
+  
 
   natRefig.addSoftChild(artRefrig, 50);
 
@@ -615,6 +619,7 @@ function initializeTechTree(stoneTools, selectBreed, earlyAstro) {
   transistor.addHardChild(genoSeq);
   transistor.addHardChild(uvLith);
   transistor.addHardChild(epidModel);
+  transistor.addHardChild(aiEth);
 
   partColl.addSoftChild(graphPro, 100);
   partColl.addSoftChild(storMed, 150);
@@ -638,7 +643,7 @@ function initializeTechTree(stoneTools, selectBreed, earlyAstro) {
 
   genoSeq.addHardChild(antiAging);
 
-  uvLith.addHardChild(uvLith);
+  uvLith.addHardChild(nanoLith);
 
   blackholeImg.addSoftChild(ftlProp, 300);
 
@@ -652,7 +657,7 @@ function initializeTechTree(stoneTools, selectBreed, earlyAstro) {
   const midevalTimes = [gunPowder2, mechClocks]
   const renaissance = [printPress, empire, natRefig]
   const enlightenment = [elecGen]
-  const modernDay = [aiEth]
+  const modernDay = []
   
 return [earlyMan, ironAge, ancientGreece, deadJesus, goldenIslam, midevalTimes, renaissance, enlightenment, modernDay]
   
@@ -1493,7 +1498,7 @@ function moveTime() {
     enlightenment0 = true;
   }
 
-
+  /*
   if (resources.year >= 2010 && modernDay0 === false) {
     populateCards(timedTech[8]);
     timedTech[8].forEach(card => {
@@ -1501,7 +1506,7 @@ function moveTime() {
     })
     modernDay0 = true;
   }
-
+  */
   
 
 
